@@ -1,0 +1,19 @@
+[project]
+name = "customer-api"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Ridhaa Cupido",email = "ridhaa@turnstay.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi[standard] (>=0.143.0,<0.144.0)"
+]
+
+[tool.poetry]
+packages = [{include = "customer_api", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
