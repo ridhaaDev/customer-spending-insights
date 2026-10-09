@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     # comma-separated string like "http://a.com,http://b.com" works.
     cors_origins: Annotated[list[str], NoDecode] = []
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def empty_is_none(cls, value: object) -> object:
+        # CloudFormation passes "" when the parameter is unset.
+        return None if isinstance(value, str) and not value.strip() else value
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def split_origins(cls, value: object) -> object:

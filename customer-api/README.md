@@ -35,3 +35,19 @@ poetry run pytest
 
 `customer_api.main.handler` wraps the app with [Mangum](https://github.com/jordaneremieff/mangum)
 for API Gateway / Lambda Function URL events.
+
+Deployment is defined in `template.yaml` (AWS SAM) and `samconfig.toml` (stack name,
+region `us-east-1`, AWS profile `personal`). The Lambda is arm64, Python 3.11, with a
+public Function URL and CORS handled by the app.
+
+```sh
+# After changing dependencies: regenerate the requirements file SAM packages from.
+poetry run python scripts/export_requirements.py
+
+sam build                 # builds inside a Lambda-like container (needs Docker)
+sam local invoke ApiFunction --event <event.json>
+sam deploy                # first deploy creates the stack
+sam deploy --parameter-overrides CorsOrigins=https://xxxx.cloudfront.net DatabaseUrl=postgresql+asyncpg://...
+```
+
+The `ApiUrl` stack output is the value for the client's `NEXT_PUBLIC_API_URL`.

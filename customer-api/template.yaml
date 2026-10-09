@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: customer-api (FastAPI via Mangum) on AWS Lambda with a Function URL.
+
+Parameters:
+  CorsOrigins:
+    Type: String
+    Default: http://localhost:3000
+    Description: Comma-separated list of allowed browser origins.
+  DatabaseUrl:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Neon pooled connection string (postgresql+asyncpg://...). Leave empty until the DB layer exists.
+  LogRetentionDays:
+    Type: Number
+    Default: 14
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Architectures: [arm64]
+    MemorySize: 512
+    Timeout: 30
+
+Resources:
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-api"
+      CodeUri: src/
+      Handler: customer_api.main.handler
+      Environment:
+        Variables:
+          CORS_ORIGINS: !Ref CorsOrigins
+          DATABASE_URL: !Ref DatabaseUrl
+      # Public HTTPS endpoint, no API Gateway cost. CORS is handled by the app.
+      FunctionUrlConfig:
+        AuthType: NONE
+
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ApiFunction}"
+      RetentionInDays: !Ref LogRetentionDays
+
+Outputs:
+  ApiUrl:
+    Description: Public base URL of the API (use for NEXT_PUBLIC_API_URL).
+    Value: !GetAtt ApiFunctionUrl.FunctionUrl
+  FunctionName:
+    Value: !Ref ApiFunction
