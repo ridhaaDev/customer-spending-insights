@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ConnectedShell } from "@/components/nav/ConnectedShell";
 import { DashboardProvider } from "@/context/DashboardContext";
+import { THEME_STORAGE_KEY, ThemeProvider } from "@/context/ThemeContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,13 +20,21 @@ export const metadata: Metadata = {
   description: "Customer spending analytics dashboard",
 };
 
+// Applies the saved theme before first paint so there is no flash of the wrong theme.
+const themeBootstrap = `try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});if(t==="light"||t==="dark"||t==="candy")document.documentElement.dataset.theme=t}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+      </head>
       <body className="min-h-full flex flex-col">
-        <DashboardProvider>
-          <ConnectedShell>{children}</ConnectedShell>
-        </DashboardProvider>
+        <ThemeProvider>
+          <DashboardProvider>
+            <ConnectedShell>{children}</ConnectedShell>
+          </DashboardProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

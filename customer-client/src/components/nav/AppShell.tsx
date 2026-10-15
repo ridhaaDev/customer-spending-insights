@@ -11,12 +11,13 @@ interface Props {
   currentId: string | null;
   onSwitch: (customerId: string) => void;
   activeHref: string;
+  tools?: ReactNode;
   children: ReactNode;
 }
 
 // Top bar plus a left column on large screens; below that the nav is a dialog-backed drawer
 // so focus is trapped while open and returned to the menu button on close.
-export function AppShell({ customers, currentId, onSwitch, activeHref, children }: Props) {
+export function AppShell({ customers, currentId, onSwitch, activeHref, tools, children }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -35,6 +36,7 @@ export function AppShell({ customers, currentId, onSwitch, activeHref, children 
         onSwitch={onSwitch}
         menuOpen={menuOpen}
         onToggleMenu={() => setMenuOpen((o) => !o)}
+        tools={tools}
       />
       <div className="flex flex-1">
         <aside className="hidden w-56 shrink-0 border-r border-line bg-card lg:block">

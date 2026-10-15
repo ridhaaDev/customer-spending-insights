@@ -39,6 +39,14 @@ build must be given the real URL (`--build-arg NEXT_PUBLIC_API_URL=…` for Dock
 The chosen customer (remembered in `localStorage`) and the period are shared across pages through
 `DashboardContext`, provided in the root layout together with the app shell.
 
+## Themes
+
+The theme menu in the top bar offers System, Light, Dark and Candy (a lavender-to-pink gradient
+with purple ink). The choice is kept in `localStorage` and applied to `<html data-theme>` by an
+inline script before first paint, so there is no flash. Every theme is a set of CSS custom
+properties in `globals.css`; components only ever reference the role tokens, and each theme is
+checked for AA contrast.
+
 ## Accessibility
 
 Interactive patterns with a keyboard model come from Radix primitives: the profile switcher is a

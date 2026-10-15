@@ -1,12 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
+import { ThemeMenu } from "@/components/nav/ThemeMenu";
 import { TopNav } from "@/components/nav/TopNav";
 import { customers } from "@/test/fixtures";
 
 const meta = {
   title: "Organisms/TopNav",
   component: TopNav,
-  args: { customers, currentId: customers[0].customerId, onSwitch: fn(), menuOpen: false, onToggleMenu: fn() },
+  args: {
+    customers,
+    currentId: customers[0].customerId,
+    onSwitch: fn(),
+    menuOpen: false,
+    onToggleMenu: fn(),
+    tools: <ThemeMenu value="system" onChange={fn()} />,
+  },
   decorators: [(Story) => <div className="-m-6 min-h-64">{Story()}</div>],
 } satisfies Meta<typeof TopNav>;
 

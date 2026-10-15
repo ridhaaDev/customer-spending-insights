@@ -29,6 +29,7 @@ const preview: Preview = {
           { value: "system", title: "System" },
           { value: "light", title: "Light" },
           { value: "dark", title: "Dark" },
+          { value: "candy", title: "Candy" },
         ],
         dynamicTitle: true,
       },

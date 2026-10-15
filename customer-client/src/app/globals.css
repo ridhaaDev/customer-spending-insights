@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Design tokens. Components reference roles (surface, card, ink…) so light/dark swap in one place. */
+/* Design tokens. Components reference roles (surface, card, ink…) so themes swap in one place. */
 /* Muted ink is set so it clears 4.5:1 on the page surface, not just on white cards. */
 :root {
   color-scheme: light;
@@ -18,11 +18,12 @@
   --status-good: #0ca30c;
   --status-warning: #fab219;
   --status-critical: #d03b3b;
+  --page-background: var(--surface);
 }
 
-/* Dark follows the OS unless data-theme forces a choice (Storybook's theme toolbar uses this). */
+/* Dark follows the OS unless data-theme forces a choice (the theme menu and Storybook set it). */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme="light"]):not([data-theme="candy"]) {
     color-scheme: dark;
     --surface: #101114;
     --card: #1a1b1f;
@@ -53,6 +54,23 @@
   --accent-ink: #5598e7;
 }
 
+/* Candy: a light theme on a lavender-to-pink gradient with purple ink and a violet accent. */
+:root[data-theme="candy"] {
+  color-scheme: light;
+  --surface: #f1e9ff;
+  --card: #fffbff;
+  --line: #e6d7f5;
+  --line-strong: #cdb6ea;
+  --ink: #2a1446;
+  --ink-secondary: #5b3f86;
+  --ink-muted: #6e5a8c;
+  --accent: #8b3ddb;
+  --accent-soft: #d8b4fe;
+  --accent-soft-ink: #2a1446;
+  --accent-ink: #6d28d9;
+  --page-background: linear-gradient(135deg, #ede4ff 0%, #fbe4f5 45%, #e4ecff 100%);
+}
+
 @theme inline {
   --color-surface: var(--surface);
   --color-card: var(--card);
@@ -73,7 +91,8 @@
 }
 
 body {
-  background: var(--surface);
+  background: var(--page-background);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
