@@ -17,8 +17,9 @@
   --status-critical: #d03b3b;
 }
 
+/* Dark follows the OS unless data-theme forces a choice (Storybook's theme toolbar uses this). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
     --surface: #101114;
     --card: #1a1b1f;
@@ -28,8 +29,21 @@
     --ink-secondary: #c3c4ca;
     --ink-muted: #9a9ca5;
     --accent: #3987e5;
-    --accent-soft: #86b6ef; /* still the lighter step of the same hue on the dark surface */
+    --accent-soft: #86b6ef;
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #101114;
+  --card: #1a1b1f;
+  --line: #2a2c33;
+  --line-strong: #3b3e47;
+  --ink: #f4f4f5;
+  --ink-secondary: #c3c4ca;
+  --ink-muted: #9a9ca5;
+  --accent: #3987e5;
+  --accent-soft: #86b6ef;
 }
 
 @theme inline {
