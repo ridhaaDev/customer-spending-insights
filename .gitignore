@@ -4,3 +4,6 @@ production-caveats.md
 .DS_Store
 .env
 
+
+# Planning notes (not part of the submission)
+*.planning.md
