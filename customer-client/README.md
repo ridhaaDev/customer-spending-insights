@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# customer-client
 
-## Getting Started
+Next.js dashboard for Customer Spending Insights. See the [root README](../README.md) for the
+overall picture.
 
-First, run the development server:
+## Run
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```sh
+npm ci
+npm run dev          # http://localhost:3000, expects the API on http://localhost:8000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Set `NEXT_PUBLIC_API_URL` to point at a different API. It is read at build time, so the production
+build must be given the real URL (`--build-arg NEXT_PUBLIC_API_URL=…` for Docker).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | What it does |
+|---------|--------------|
+| `npm run dev` | Dev server with hot reload |
+| `npm run build` | Static export to `out/` (`output: "export"`) |
+| `npm test` | Vitest unit tests (jsdom) |
+| `npm run lint` | ESLint (Next core-web-vitals + TypeScript rules) |
+| `npm run typecheck` | Generates Next route types, then `tsc --noEmit` |
 
-## Learn More
+## Layout
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/            layout, page, global styles (design tokens for light/dark)
+  components/     Dashboard (orchestration) and one component per panel
+  hooks/useQuery  small fetch hook: cancels stale requests, keeps previous data while loading
+  lib/api.ts      typed client for every endpoint
+  lib/types.ts    wire types matching the API's camelCase responses
+  lib/format.ts   en-ZA currency, number and date formatting
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Charts use Recharts; icons are lucide. The page is fully client-rendered, so it works as a static
+export and carries no server-only Next features.

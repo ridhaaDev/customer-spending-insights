@@ -6,13 +6,16 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 FROM base AS deps
 COPY package.json package-lock.json ./
-RUN npm ci
+# The stamp records which lockfile these node_modules were installed from (see the dev CMD).
+RUN npm ci && cp package-lock.json node_modules/.package-lock.stamp
 
 # Development image: source is bind-mounted by compose, dev server with HMR.
+# node_modules lives in a compose volume that outlives image rebuilds, so on start we
+# reinstall if the lockfile no longer matches the stamp (i.e. dependencies changed).
 FROM deps AS dev
 COPY . .
 EXPOSE 3000
-CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
+CMD ["sh", "-c", "if ! cmp -s package-lock.json node_modules/.package-lock.stamp; then echo 'Lockfile changed, reinstalling dependencies…' && npm ci --no-audit --no-fund && cp package-lock.json node_modules/.package-lock.stamp; fi && exec npm run dev -- --hostname 0.0.0.0"]
 
 # Build stage: static export to /app/out.
 # NEXT_PUBLIC_* values are baked in here, so pass them as build args.

@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
+/* Design tokens. Components reference roles (surface, card, ink…) so light/dark swap in one place. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  color-scheme: light;
+  --surface: #f4f5f7;
+  --card: #ffffff;
+  --line: #e6e8ec;
+  --line-strong: #cfd3da;
+  --ink: #111827;
+  --ink-secondary: #4b5563;
+  --ink-muted: #6b7280;
+  --accent: #2a78d6;
+  --accent-soft: #9ec5f4;
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-critical: #d03b3b;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+    --surface: #101114;
+    --card: #1a1b1f;
+    --line: #2a2c33;
+    --line-strong: #3b3e47;
+    --ink: #f4f4f5;
+    --ink-secondary: #c3c4ca;
+    --ink-muted: #9a9ca5;
+    --accent: #3987e5;
+    --accent-soft: #86b6ef; /* still the lighter step of the same hue on the dark surface */
   }
 }
 
+@theme inline {
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--status-good);
+  --color-warning: var(--status-warning);
+  --color-critical: var(--status-critical);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
 }
