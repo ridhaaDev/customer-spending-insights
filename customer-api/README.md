@@ -1,6 +1,7 @@
 # customer-api
 
-FastAPI backend for Customer Spending Insights.
+FastAPI backend for Customer Spending Insights. See the [root README](../README.md) for the
+endpoint list and architecture.
 
 ## Setup
 
@@ -20,15 +21,19 @@ API docs are served at http://127.0.0.1:8000/docs.
 
 Read from environment variables (or a local `.env`):
 
-| Variable       | Example                                   | Notes                                  |
-|----------------|-------------------------------------------|----------------------------------------|
-| `DATABASE_URL` | `postgresql+asyncpg://user:pw@host/db`    | Optional until the DB layer is added   |
-| `CORS_ORIGINS` | `http://localhost:3000,https://app.example` | Comma-separated list of allowed origins |
+| Variable       | Example                                     | Notes                                                        |
+|----------------|---------------------------------------------|--------------------------------------------------------------|
+| `CORS_ORIGINS` | `http://localhost:3000,https://app.example` | Comma-separated list of allowed browser origins              |
+| `MOCK_SEED`    | `20240916`                                  | Seed for the generated dataset (default shown)               |
+| `MOCK_TODAY`   | `2024-09-16`                                | Pins "today" so rolling periods and data are reproducible    |
+| `DATABASE_URL` | `postgresql+asyncpg://user:pw@host/db`      | Reserved for a future database-backed repository; unused now |
 
-## Test
+## Test and lint
 
 ```sh
 poetry run pytest
+poetry run ruff check .
+poetry run ruff format --check .
 ```
 
 ## AWS Lambda
@@ -47,7 +52,7 @@ poetry run python scripts/export_requirements.py
 sam build                 # builds inside a Lambda-like container (needs Docker)
 sam local invoke ApiFunction --event <event.json>
 sam deploy                # first deploy creates the stack
-sam deploy --parameter-overrides CorsOrigins=https://xxxx.cloudfront.net DatabaseUrl=postgresql+asyncpg://...
+sam deploy --parameter-overrides CorsOrigins=https://xxxx.cloudfront.net
 ```
 
 The `ApiUrl` stack output is the value for the client's `NEXT_PUBLIC_API_URL`.

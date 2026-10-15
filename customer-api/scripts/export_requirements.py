@@ -2,6 +2,7 @@
 
 Run after changing dependencies:  poetry run python scripts/export_requirements.py
 """
+
 import tomllib
 from pathlib import Path
 

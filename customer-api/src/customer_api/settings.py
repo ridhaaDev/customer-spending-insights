@@ -1,3 +1,4 @@
+from datetime import date
 from functools import lru_cache
 from typing import Annotated
 
@@ -15,7 +16,12 @@ class Settings(BaseSettings):
     # comma-separated string like "http://a.com,http://b.com" works.
     cors_origins: Annotated[list[str], NoDecode] = []
 
-    @field_validator("database_url", mode="before")
+    # Mock dataset controls. The seed fixes the generated history; MOCK_TODAY pins the
+    # reference date so rolling periods (and therefore the whole dataset) are reproducible.
+    mock_seed: int = 20240916
+    mock_today: date | None = None
+
+    @field_validator("database_url", "mock_today", mode="before")
     @classmethod
     def empty_is_none(cls, value: object) -> object:
         # CloudFormation passes "" when the parameter is unset.

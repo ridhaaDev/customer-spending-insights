@@ -1,0 +1,134 @@
+"""Response models. Field names are snake_case in Python and camelCase on the wire."""
+
+from __future__ import annotations
+
+from datetime import date, datetime
+
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
+
+from customer_api.domain import AccountType, Category, GoalStatus, PaymentMethod, Period
+
+
+class CamelModel(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
+
+
+class CustomerSummary(CamelModel):
+    customer_id: str
+    name: str
+    email: str
+    account_type: AccountType
+
+
+class CustomerList(CamelModel):
+    customers: list[CustomerSummary]
+
+
+class CustomerProfile(CamelModel):
+    customer_id: str
+    name: str
+    email: str
+    join_date: date
+    account_type: AccountType
+    total_spent: float
+    currency: str
+
+
+class PeriodComparison(CamelModel):
+    spent_change: float | None  # percentage; null when the previous period had no spend
+    transaction_change: float | None
+
+
+class SpendingSummary(CamelModel):
+    period: Period
+    total_spent: float
+    transaction_count: int
+    average_transaction: float
+    top_category: Category | None
+    compared_to_previous: PeriodComparison
+
+
+class DateRangeOut(CamelModel):
+    start_date: date
+    end_date: date
+
+
+class CategorySpend(CamelModel):
+    name: Category
+    amount: float
+    percentage: float
+    transaction_count: int
+    color: str
+    icon: str
+
+
+class SpendingByCategory(CamelModel):
+    date_range: DateRangeOut
+    total_amount: float
+    categories: list[CategorySpend]
+
+
+class MonthTrend(CamelModel):
+    month: str
+    total_spent: float
+    transaction_count: int
+    average_transaction: float
+
+
+class SpendingTrends(CamelModel):
+    trends: list[MonthTrend]
+
+
+class TransactionOut(CamelModel):
+    id: str
+    date: datetime
+    merchant: str
+    category: Category
+    amount: float
+    description: str
+    payment_method: PaymentMethod
+    icon: str
+    category_color: str
+
+
+class Pagination(CamelModel):
+    total: int
+    limit: int
+    offset: int
+    has_more: bool
+
+
+class TransactionPage(CamelModel):
+    transactions: list[TransactionOut]
+    pagination: Pagination
+
+
+class GoalOut(CamelModel):
+    id: str
+    category: Category
+    monthly_budget: float
+    current_spent: float
+    percentage_used: float
+    days_remaining: int
+    status: GoalStatus
+
+
+class GoalList(CamelModel):
+    goals: list[GoalOut]
+
+
+class CategoryFilter(CamelModel):
+    name: Category
+    color: str
+    icon: str
+
+
+class DateRangePreset(CamelModel):
+    label: str
+    value: Period
+
+
+class Filters(CamelModel):
+    categories: list[CategoryFilter]
+    date_range_presets: list[DateRangePreset]
