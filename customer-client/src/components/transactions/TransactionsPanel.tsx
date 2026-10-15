@@ -5,7 +5,7 @@ import { Card, CardHeader, EmptyState, ErrorState, Refreshing, Skeleton } from "
 import { useQuery } from "@/hooks/useQuery";
 import { api } from "@/lib/api";
 import { formatInteger } from "@/lib/format";
-import type { CategoryFilter, SortBy } from "@/lib/types";
+import type { CategoryFilter, DateRangeValue, SortBy } from "@/lib/types";
 import { Pagination } from "./Pagination";
 import { TransactionFilters } from "./TransactionFilters";
 import { TransactionTable } from "./TransactionTable";
@@ -15,15 +15,17 @@ const PAGE_SIZE = 10;
 interface Props {
   customerId: string;
   categories: CategoryFilter[] | undefined;
+  // Remount (key) the panel when this changes so paging resets.
+  dateRange?: DateRangeValue | null;
 }
 
 // Data-connected: owns the filter and paging state and fetches each page.
-export function TransactionsPanel({ customerId, categories }: Props) {
+export function TransactionsPanel({ customerId, categories, dateRange = null }: Props) {
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("date_desc");
   const [offset, setOffset] = useState(0);
 
-  const query = { limit: PAGE_SIZE, offset, category: category || undefined, sortBy };
+  const query = { limit: PAGE_SIZE, offset, category: category || undefined, sortBy, ...dateRange };
   const { data, loading, error, refetch } = useQuery(`transactions:${customerId}:${JSON.stringify(query)}`, (signal) =>
     api.transactions(customerId, query, signal),
   );

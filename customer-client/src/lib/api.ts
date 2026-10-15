@@ -81,8 +81,9 @@ export const api = {
   summary: (customerId: string, period: Period, signal?: AbortSignal) =>
     request<SpendingSummary>(`/api/customers/${encodeURIComponent(customerId)}/spending/summary`, { period }, signal),
 
-  categories: (customerId: string, period: Period, signal?: AbortSignal) =>
-    request<SpendingByCategory>(`/api/customers/${encodeURIComponent(customerId)}/spending/categories`, { period }, signal),
+  // Either a preset period or a custom inclusive range; the API gives the range precedence.
+  categories: (customerId: string, query: { period?: Period; startDate?: string; endDate?: string }, signal?: AbortSignal) =>
+    request<SpendingByCategory>(`/api/customers/${encodeURIComponent(customerId)}/spending/categories`, { ...query }, signal),
 
   trends: (customerId: string, months: number, signal?: AbortSignal) =>
     request<SpendingTrends>(`/api/customers/${encodeURIComponent(customerId)}/spending/trends`, { months }, signal),

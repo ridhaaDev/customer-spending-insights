@@ -6,6 +6,11 @@ export type AccountType = "standard" | "premium" | "business";
 export type SortBy = "date_desc" | "date_asc" | "amount_desc" | "amount_asc";
 export type GoalStatus = "on_track" | "warning" | "exceeded";
 
+export interface DateRangeValue {
+  startDate: string; // YYYY-MM-DD, inclusive
+  endDate: string;
+}
+
 export interface CustomerSummary {
   customerId: string;
   name: string;

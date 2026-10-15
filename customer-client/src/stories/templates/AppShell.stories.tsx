@@ -10,8 +10,7 @@ const meta = {
     customers,
     currentId: customers[0].customerId,
     onSwitch: fn(),
-    activeSection: "overview",
-    onNavigate: fn(),
+    activeHref: "/",
     children: (
       <div className="p-6">
         <div className="h-96 rounded-xl border border-dashed border-line-strong p-4 text-sm text-ink-muted">Page content</div>
@@ -25,6 +24,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Desktop: Story = {};
+
+export const TrendsActive: Story = { args: { activeHref: "/trends" } };
 
 export const Phone: Story = {
   parameters: { viewport: { defaultViewport: "mobile1" } },

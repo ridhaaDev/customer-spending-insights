@@ -26,24 +26,39 @@ build must be given the real URL (`--build-arg NEXT_PUBLIC_API_URL=…` for Dock
 | `npm run storybook` | Storybook dev server |
 | `npm run build-storybook` | Static Storybook in `storybook-static/` |
 
+## Pages
+
+| Route | Shows |
+|-------|-------|
+| `/` | Customer header, period selector, headline stats, recent transactions |
+| `/categories` | Spend by category for a preset period or a custom date range |
+| `/trends` | Monthly totals for the last 6, 12 or 24 months, chart or table |
+| `/budgets` | Month-to-date spend against each budget |
+| `/transactions` | Full list with category, sort, date range and paging |
+
+The chosen customer (remembered in `localStorage`) and the period are shared across pages through
+`DashboardContext`, provided in the root layout together with the app shell.
+
 ## Layout
 
 ```
 src/
-  app/              layout, page, global styles (design tokens for light/dark)
+  app/              root layout and one folder per route; global styles (design tokens)
+  context/          DashboardContext: customers list, selected customer, period
   components/
-    ui/             primitives: Button, Card, CardHeader, Select, Avatar, Skeleton, states
+    pages/          one data-connected component per route, plus the shared PageFrame
+    ui/             primitives: Button, Card, CardHeader, Select, Avatar, Skeleton, SegmentedControl, PageHeader, states
     category/       CategoryIcon, CategoryChip
-    nav/            AppShell, TopNav, SideNav, ProfileMenu ("Switch profile")
-    dashboard/      Dashboard (data-connected), DashboardHeader, PeriodSelector
+    nav/            AppShell, ConnectedShell, TopNav, SideNav, ProfileMenu ("Switch profile")
+    dashboard/      DashboardHeader, PeriodSelector, DateRangePicker
     summary/        SummaryCards, StatTile, DeltaBadge
     categories/     CategoryBreakdown, ShareBar, CategoryRow
     trends/         TrendsChart, TrendsBarChart, TrendsTable, TrendTooltip, PeakLabel
     goals/          GoalsPanel, GoalRow, GoalMeter, StatusBadge
-    transactions/   TransactionsPanel (data-connected), TransactionTable, TransactionFilters, Pagination
+    transactions/   TransactionsPanel and RecentTransactions (data-connected), TransactionTable, TransactionFilters, Pagination
   stories/
-    atoms/          Button, Select, Avatar, Skeleton, states, CategoryIcon, CategoryChip, DeltaBadge, StatusBadge, GoalMeter, ShareBar
-    molecules/      Card, StatTile, CategoryRow, GoalRow, TrendTooltip, TrendsBarChart, TrendsTable, Pagination, filters, selectors, SideNav, ProfileMenu
+    atoms/          Button, Select, Avatar, Skeleton, states, SegmentedControl, CategoryIcon, CategoryChip, DeltaBadge, StatusBadge, GoalMeter, ShareBar
+    molecules/      Card, PageHeader, StatTile, CategoryRow, GoalRow, TrendTooltip, TrendsBarChart, TrendsTable, Pagination, filters, selectors, DateRangePicker, SideNav, ProfileMenu
     organisms/      SummaryCards, CategoryBreakdown, TrendsChart, GoalsPanel, TopNav
     templates/      AppShell
   hooks/useQuery    small fetch hook: cancels stale requests, keeps previous data while loading
@@ -54,7 +69,8 @@ src/
 ```
 
 Components live in feature folders; the Storybook catalogue under `src/stories/` is organised by
-atomic-design level instead, so the same component is found by what it is made of. Only `Dashboard`
-and `TransactionsPanel` fetch data; everything else is presentational and has a story. Charts use
+atomic-design level instead, so the same component is found by what it is made of. Only the page
+components, `TransactionsPanel` and `RecentTransactions` fetch data; everything else is
+presentational and has a story. Charts use
 Recharts; icons are lucide. The page is fully client-rendered, so it works as a static export and
 carries no server-only Next features.

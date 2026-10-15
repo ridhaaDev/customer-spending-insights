@@ -4,6 +4,8 @@ export { Card } from "./Card";
 export { CardHeader } from "./CardHeader";
 export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";
+export { PageHeader } from "./PageHeader";
 export { Refreshing } from "./Refreshing";
+export { SegmentedControl, type SegmentOption } from "./SegmentedControl";
 export { Select } from "./Select";
 export { Skeleton } from "./Skeleton";

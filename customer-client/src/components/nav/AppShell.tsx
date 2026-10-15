@@ -9,18 +9,14 @@ interface Props {
   customers: CustomerSummary[] | undefined;
   currentId: string | null;
   onSwitch: (customerId: string) => void;
-  activeSection: string;
-  onNavigate: (id: string) => void;
+  activeHref: string;
   children: ReactNode;
 }
 
 // Top bar plus a left column on large screens, which becomes a drawer below that.
-export function AppShell({ customers, currentId, onSwitch, activeSection, onNavigate, children }: Props) {
+export function AppShell({ customers, currentId, onSwitch, activeHref, children }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = (id: string) => {
-    onNavigate(id);
-    setMenuOpen(false);
-  };
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
@@ -34,15 +30,15 @@ export function AppShell({ customers, currentId, onSwitch, activeSection, onNavi
       <div className="flex flex-1">
         <aside className="hidden w-56 shrink-0 border-r border-line bg-card lg:block">
           <div className="sticky top-14 p-3">
-            <SideNav activeId={activeSection} onNavigate={navigate} />
+            <SideNav activeHref={activeHref} />
           </div>
         </aside>
 
         {menuOpen && (
           <div className="fixed inset-0 top-14 z-10 lg:hidden">
-            <button type="button" aria-label="Close navigation" onClick={() => setMenuOpen(false)} className="absolute inset-0 bg-black/40" />
+            <button type="button" aria-label="Close navigation" onClick={closeMenu} className="absolute inset-0 bg-black/40" />
             <aside className="absolute inset-y-0 left-0 w-64 bg-card p-3 shadow-xl">
-              <SideNav activeId={activeSection} onNavigate={navigate} />
+              <SideNav activeHref={activeHref} onNavigate={closeMenu} />
             </aside>
           </div>
         )}
