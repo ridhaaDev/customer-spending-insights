@@ -44,8 +44,7 @@ export function formatMonth(yyyyMm: string, style: "short" | "long" = "short"): 
   return style === "short" ? monthShort.format(d) : monthLong.format(d);
 }
 
-// The API buckets by UTC calendar day, so dates are displayed in UTC too; otherwise a late-evening
-// transaction could show on a day the API's filters exclude it from.
+// Dates display in UTC because the API buckets by UTC calendar day.
 const dateFmt = new Intl.DateTimeFormat(LOCALE, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 const dateTimeFmt = new Intl.DateTimeFormat(LOCALE, {
   day: "numeric",

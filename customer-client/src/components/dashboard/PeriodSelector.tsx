@@ -1,6 +1,6 @@
 import type { Period } from "@/lib/types";
 
-const DEFAULT_PRESETS: { label: string; value: Period }[] = [
+export const DEFAULT_PRESETS: { label: string; value: Period }[] = [
   { label: "Last 7 days", value: "7d" },
   { label: "Last 30 days", value: "30d" },
   { label: "Last 90 days", value: "90d" },

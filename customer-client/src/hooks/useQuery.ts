@@ -5,16 +5,12 @@ import { useEffect, useEffectEvent, useState } from "react";
 export interface QueryState<T> {
   data: T | undefined;
   error: Error | null;
-  /** True while a fetch for the current key is in flight. Previous data stays available. */
+  // True while a fetch for the current key is in flight; previous data stays available.
   loading: boolean;
   refetch: () => void;
 }
 
-/**
- * Minimal data-fetching hook: refetches when `key` changes, cancels stale requests, and keeps the
- * previous result while the next one loads so the UI can dim instead of flashing a skeleton.
- * `enabled: false` skips fetching (e.g. before a customer has been chosen).
- */
+// Refetches when `key` changes, cancels stale requests, and keeps the previous result while loading.
 export function useQuery<T>(
   key: string,
   fetcher: (signal: AbortSignal) => Promise<T>,
@@ -28,8 +24,7 @@ export function useQuery<T>(
     error: null,
   });
 
-  // The fetcher is usually an inline closure; reading it through an effect event keeps the
-  // effect keyed on `requestId` alone.
+  // Reading the (usually inline) fetcher through an effect event keeps the effect keyed on requestId alone.
   const run = useEffectEvent((signal: AbortSignal) => fetcher(signal));
 
   useEffect(() => {
