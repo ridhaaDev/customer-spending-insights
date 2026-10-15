@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 /* Design tokens. Components reference roles (surface, card, ink…) so light/dark swap in one place. */
+/* Muted ink is set so it clears 4.5:1 on the page surface, not just on white cards. */
 :root {
   color-scheme: light;
   --surface: #f4f5f7;
@@ -9,9 +10,11 @@
   --line-strong: #cfd3da;
   --ink: #111827;
   --ink-secondary: #4b5563;
-  --ink-muted: #6b7280;
+  --ink-muted: #5f6672;
   --accent: #2a78d6;
   --accent-soft: #9ec5f4;
+  --accent-soft-ink: #0b1a33;
+  --accent-ink: #1e62b8; /* accent darkened for 14px text on white and the surface */
   --status-good: #0ca30c;
   --status-warning: #fab219;
   --status-critical: #d03b3b;
@@ -30,6 +33,8 @@
     --ink-muted: #9a9ca5;
     --accent: #3987e5;
     --accent-soft: #86b6ef;
+    --accent-soft-ink: #0b1a33;
+    --accent-ink: #5598e7;
   }
 }
 
@@ -44,6 +49,8 @@
   --ink-muted: #9a9ca5;
   --accent: #3987e5;
   --accent-soft: #86b6ef;
+  --accent-soft-ink: #0b1a33;
+  --accent-ink: #5598e7;
 }
 
 @theme inline {
@@ -56,6 +63,8 @@
   --color-ink-muted: var(--ink-muted);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-ink: var(--accent-soft-ink);
+  --color-accent-ink: var(--accent-ink);
   --color-good: var(--status-good);
   --color-warning: var(--status-warning);
   --color-critical: var(--status-critical);

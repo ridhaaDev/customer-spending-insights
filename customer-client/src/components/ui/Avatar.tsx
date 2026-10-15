@@ -17,7 +17,7 @@ export function Avatar({ name, size = "md" }: Props) {
   return (
     <span
       aria-hidden
-      className={`inline-flex shrink-0 select-none items-center justify-center rounded-full bg-accent-soft font-semibold text-ink ${box}`}
+      className={`inline-flex shrink-0 select-none items-center justify-center rounded-full bg-accent-soft font-semibold text-accent-soft-ink ${box}`}
     >
       {initials(name) || "?"}
     </span>

@@ -19,7 +19,7 @@ export function RecentTransactions({ customerId }: { customerId: string }) {
         title="Recent transactions"
         subtitle={`Latest ${LIMIT}`}
         action={
-          <Link href="/transactions" className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline">
+          <Link href="/transactions" className="inline-flex items-center gap-1 text-sm font-medium text-accent-ink hover:underline">
             View all <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
         }

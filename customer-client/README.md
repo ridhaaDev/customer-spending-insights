@@ -39,6 +39,23 @@ build must be given the real URL (`--build-arg NEXT_PUBLIC_API_URL=…` for Dock
 The chosen customer (remembered in `localStorage`) and the period are shared across pages through
 `DashboardContext`, provided in the root layout together with the app shell.
 
+## Accessibility
+
+Interactive patterns with a keyboard model come from Radix primitives: the profile switcher is a
+`DropdownMenu` with a radio group (arrow keys, Escape, focus return), the mobile navigation is a
+`Dialog` (focus trap, Escape, focus return), and the segmented controls are a `RadioGroup` (arrow
+keys, roving tab index). Native `select` and `input type="date"` are used where the browser's own
+control is already accessible. Colour tokens are chosen to clear WCAG AA contrast on both the page
+surface and cards, and status is always paired with an icon and text.
+
+Three layers keep it honest:
+
+- `eslint-plugin-jsx-a11y` recommended rules run in `npm run lint`.
+- `src/test/a11y.test.tsx` renders the main components and asserts zero axe violations
+  (`vitest-axe`; contrast is skipped there because jsdom has no layout).
+- Storybook's Accessibility panel (`@storybook/addon-a11y`) runs axe against every story, including
+  contrast, in light and dark via the theme toolbar.
+
 ## Layout
 
 ```
