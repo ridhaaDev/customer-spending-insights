@@ -1,7 +1,8 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
+import { useAriaHidden } from "@/hooks/useAriaHidden";
 import type { CustomerSummary } from "@/lib/types";
 import { SideNav, type NavItem } from "./SideNav";
 import { TopNav } from "./TopNav";
@@ -20,13 +21,15 @@ interface Props {
 // so focus is trapped while open and returned to the menu button on close.
 export function AppShell({ customers, currentId, onSwitch, items, activeHref, tools, children }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const hiddenByModal = useAriaHidden(rootRef);
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      {/* Leaves the tab order while the drawer (a modal dialog) is open. */}
+    <div ref={rootRef} className="flex min-h-full flex-1 flex-col">
+      {/* Leaves the tab order while a modal layer (drawer, select) hides the shell. */}
       <a
         href="#main"
-        tabIndex={menuOpen ? -1 : 0}
+        tabIndex={menuOpen || hiddenByModal ? -1 : 0}
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-ink focus:ring-2 focus:ring-accent"
       >
         Skip to content

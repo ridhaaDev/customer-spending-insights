@@ -104,22 +104,22 @@ export function TransactionForm({ categories, paymentMethods, defaultDate, onSub
             className={inputClass}
           />
         </label>
-        <Select label="Category" stacked value={values.category} onChange={set("category")} required>
-          <option value="">Choose…</option>
-          {categories?.map((c) => (
-            <option key={c.name} value={c.name}>
-              {c.name}
-            </option>
-          ))}
-        </Select>
-        <Select label="Payment method" stacked value={values.paymentMethod} onChange={set("paymentMethod")} required>
-          <option value="">Choose…</option>
-          {paymentMethods?.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </Select>
+        <Select
+          label="Category"
+          stacked
+          required
+          options={(categories ?? []).map((c) => ({ value: c.name, label: c.name }))}
+          value={values.category}
+          onValueChange={(v) => setValues((s) => ({ ...s, category: v }))}
+        />
+        <Select
+          label="Payment method"
+          stacked
+          required
+          options={(paymentMethods ?? []).map((m) => ({ value: m, label: m }))}
+          value={values.paymentMethod}
+          onValueChange={(v) => setValues((s) => ({ ...s, paymentMethod: v }))}
+        />
         <label className="block text-sm">
           <span className="mb-1 block font-medium text-ink">Date and time (UTC)</span>
           <input type="datetime-local" value={values.date} onChange={set("date")} required className={inputClass} />

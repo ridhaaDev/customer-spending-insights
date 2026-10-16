@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, screen, userEvent, within } from "storybook/test";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { categoryFilters, paymentMethods } from "@/test/fixtures";
 
@@ -26,8 +26,10 @@ export const SubmitsAValidBody: Story = {
     const c = within(canvasElement);
     await userEvent.type(c.getByLabelText(/merchant/i), "Kauai");
     await userEvent.type(c.getByLabelText(/amount/i), "89.5");
-    await userEvent.selectOptions(c.getByLabelText(/category/i), "Dining");
-    await userEvent.selectOptions(c.getByLabelText(/payment method/i), "Credit Card");
+    await userEvent.click(c.getByRole("combobox", { name: /category/i }));
+    await userEvent.click(await screen.findByRole("option", { name: "Dining" }));
+    await userEvent.click(c.getByRole("combobox", { name: /payment method/i }));
+    await userEvent.click(await screen.findByRole("option", { name: "Credit Card" }));
     await userEvent.type(c.getByLabelText(/description/i), "Lunch");
     await userEvent.click(c.getByRole("button", { name: /add transaction/i }));
     await expect(args.onSubmit).toHaveBeenCalledWith({

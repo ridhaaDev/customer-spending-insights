@@ -43,3 +43,15 @@ describe("customer paths", () => {
     expect(sectionOf("/customers/10001/unknown")).toBe("");
   });
 });
+
+describe("date helpers", () => {
+  it("formats ranges with unpadded days and the year once when shared", async () => {
+    const { formatRange, lastMonth, rangeForPeriod, thisMonth } = await import("./dates");
+    expect(formatRange({ startDate: "2026-10-02", endDate: "2026-10-09" })).toBe("2 Oct – 9 Oct 2026");
+    expect(formatRange({ startDate: "2025-12-28", endDate: "2026-01-03" })).toBe("28 Dec 2025 – 3 Jan 2026");
+    expect(rangeForPeriod("7d", "2026-10-16")).toEqual({ startDate: "2026-10-10", endDate: "2026-10-16" });
+    expect(thisMonth("2026-10-16")).toEqual({ startDate: "2026-10-01", endDate: "2026-10-16" });
+    expect(lastMonth("2026-10-16")).toEqual({ startDate: "2026-09-01", endDate: "2026-09-30" });
+    expect(lastMonth("2026-01-05")).toEqual({ startDate: "2025-12-01", endDate: "2025-12-31" });
+  });
+});

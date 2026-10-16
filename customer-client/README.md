@@ -68,8 +68,8 @@ checked for AA contrast.
 Interactive patterns with a keyboard model come from Radix primitives: the profile switcher and
 theme menu are non-modal `DropdownMenu`s with radio groups (arrow keys, Escape, focus return), the
 mobile navigation is a `Dialog` (focus trap, Escape, focus return), and the segmented controls are
-a `RadioGroup` (arrow keys, roving tab index). Native `select` and `input type="date"` are used
-where the browser's own control is already accessible. Colour tokens are chosen to clear WCAG AA
+a `RadioGroup` (arrow keys, roving tab index). Selects are Radix `Select` (typeahead, arrow keys, Escape) and the date filter is a Radix `Popover`
+with relative presets and a `react-day-picker` calendar, both themed through the same tokens. Colour tokens are chosen to clear WCAG AA
 contrast on both the page surface and cards, and status is always paired with an icon and text.
 
 Three layers keep it honest:
@@ -79,6 +79,11 @@ Three layers keep it honest:
   (`vitest-axe`; contrast is skipped there because jsdom has no layout).
 - Storybook's Accessibility panel (`@storybook/addon-a11y`) runs axe against every story, including
   contrast, in every theme via the toolbar.
+
+One known axe report: while a Radix `Select` list is open it marks the rest of the page
+`aria-hidden`, so a static scan in that instant flags the page's links as focusable-but-hidden. The
+select's focus trap means keyboard users cannot actually reach them, and the page scans clean once
+the list closes.
 
 ## Layout
 
@@ -98,7 +103,7 @@ src/
     ui/             primitives: Button, Card, CardHeader, Select, Avatar, Skeleton, SegmentedControl, PageHeader, states
     category/       CategoryIcon, CategoryChip
     nav/            AppShell, ConnectedShell, TopNav, SideNav, ProfileMenu, ThemeMenu
-    dashboard/      DashboardHeader, PeriodSelector, DateRangePicker
+    dashboard/      DashboardHeader, PeriodSelector, DateRangeControl (relative presets + calendar popover)
     summary/        SummaryCards, StatTile, DeltaBadge
     categories/     CategoryBreakdown, ShareBar, CategoryRow
     trends/         TrendsChart, TrendsBarChart, TrendsTable, TrendTooltip, PeakLabel

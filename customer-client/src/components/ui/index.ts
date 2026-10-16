@@ -7,5 +7,5 @@ export { ErrorState } from "./ErrorState";
 export { PageHeader } from "./PageHeader";
 export { Refreshing } from "./Refreshing";
 export { SegmentedControl, type SegmentOption } from "./SegmentedControl";
-export { Select } from "./Select";
+export { Select, type SelectOption } from "./Select";
 export { Skeleton } from "./Skeleton";

@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
+import { DateRangeControl } from "@/components/dashboard/DateRangeControl";
 import { TransactionsPanel } from "@/components/transactions/TransactionsPanel";
 import { PageHeader } from "@/components/ui";
 import { useUrlState } from "@/hooks/useUrlState";
@@ -29,7 +29,8 @@ export function TransactionsPage({ customerId }: { customerId: string }) {
           </Link>
         }
       />
-      <DateRangePicker key={rangeKey} value={range} onChange={setRange} />
+      {/* The list endpoint only takes dates, so presets become concrete ranges ending today. */}
+      <DateRangeControl range={range} onRangeChange={setRange} allowAllTime />
       <TransactionsPanel key={`${customerId}:${rangeKey}`} customerId={customerId} categories={filters.data?.categories} dateRange={range} />
     </PageFrame>
   );

@@ -1,4 +1,4 @@
-import { Select } from "@/components/ui";
+import { Select, type SelectOption } from "@/components/ui";
 import type { CategoryFilter, SortBy } from "@/lib/types";
 
 export const SORT_OPTIONS: { value: SortBy; label: string }[] = [
@@ -7,6 +7,8 @@ export const SORT_OPTIONS: { value: SortBy; label: string }[] = [
   { value: "amount_desc", label: "Largest amount" },
   { value: "amount_asc", label: "Smallest amount" },
 ];
+
+const ALL = "__all__";
 
 interface Props {
   categories: CategoryFilter[] | undefined;
@@ -17,23 +19,17 @@ interface Props {
 }
 
 export function TransactionFilters({ categories, category, sortBy, onCategoryChange, onSortChange }: Props) {
+  const categoryOptions: SelectOption[] = [{ value: ALL, label: "All categories" }, ...(categories ?? []).map((c) => ({ value: c.name, label: c.name }))];
   return (
     <div className="flex flex-wrap gap-2">
-      <Select label="Category" hideLabel value={category} onChange={(e) => onCategoryChange(e.target.value)}>
-        <option value="">All categories</option>
-        {categories?.map((c) => (
-          <option key={c.name} value={c.name}>
-            {c.name}
-          </option>
-        ))}
-      </Select>
-      <Select label="Sort" hideLabel value={sortBy} onChange={(e) => onSortChange(e.target.value as SortBy)}>
-        {SORT_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </Select>
+      <Select
+        label="Category"
+        hideLabel
+        options={categoryOptions}
+        value={category || ALL}
+        onValueChange={(v) => onCategoryChange(v === ALL ? "" : v)}
+      />
+      <Select label="Sort" hideLabel options={SORT_OPTIONS} value={sortBy} onValueChange={(v) => onSortChange(v as SortBy)} />
     </div>
   );
 }

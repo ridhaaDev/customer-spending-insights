@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { axe } from "vitest-axe";
 import { CategoryBreakdown } from "@/components/categories/CategoryBreakdown";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
+import { DateRangeControl } from "@/components/dashboard/DateRangeControl";
 import { PeriodSelector } from "@/components/dashboard/PeriodSelector";
 import { GoalsPanel } from "@/components/goals/GoalsPanel";
 import { SummaryCards } from "@/components/summary/SummaryCards";
@@ -35,7 +35,7 @@ const cases: Record<string, () => React.ReactElement> = {
     <>
       <PageHeader title="Categories" description="Where the money went." />
       <PeriodSelector value="30d" onChange={noop} />
-      <DateRangePicker value={null} onChange={noop} />
+      <DateRangeControl range={null} period="30d" onPeriodChange={noop} onRangeChange={noop} today="2026-10-16" />
     </>
   ),
   Header: () => <DashboardHeader profile={profile} error={null} onRetry={noop} />,
