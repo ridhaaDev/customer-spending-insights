@@ -38,7 +38,8 @@ npm run storybook    # http://localhost:6006, component catalogue with a theme t
 | `/customers/{id}/categories` | Spend by category for a preset period or a custom date range |
 | `/customers/{id}/categories/new` | Form to add a category (name, colour swatch, icon) for this customer |
 | `/customers/{id}/trends` | Monthly totals for the last 6, 12 or 24 months, chart or table |
-| `/customers/{id}/budgets` | Month-to-date spend against each budget |
+| `/customers/{id}/budgets` | Amount left this month across all budgets, and month-to-date spend against each |
+| `/customers/{id}/budgets/new` | Form to set a monthly budget for a category that has none yet |
 | `/customers/{id}/transactions` | Full list with category, sort, date range and paging |
 | `/customers/{id}/transactions/new` | Form to record a transaction; on success every view for that customer refreshes |
 
@@ -108,7 +109,7 @@ src/
     summary/        SummaryCards, StatTile, DeltaBadge
     categories/     CategoryBreakdown, ShareBar, CategoryRow, CategoryForm
     trends/         TrendsChart, TrendsBarChart, TrendsTable, TrendTooltip, PeakLabel
-    goals/          GoalsPanel, GoalRow, GoalMeter, StatusBadge
+    goals/          GoalsPanel, GoalRow, GoalMeter, StatusBadge, BudgetSummaryCard, GoalForm
     transactions/   TransactionsPanel and RecentTransactions (query-connected), TransactionTable, TransactionFilters, Pagination
   stories/          Storybook catalogue by atomic level: atoms, molecules, organisms, templates
   test/fixtures.ts  sample payloads shared by stories and tests

@@ -81,6 +81,7 @@ The API also ships an AWS Lambda entrypoint and SAM template; see [customer-api/
 | `/api/customers/{id}/transactions?limit=&offset=&category=&startDate=&endDate=&sortBy=` | Paginated, filterable, sortable transactions |
 | `POST /api/customers/{id}/transactions` | Records a transaction in memory (merchant, category, amount, date, description, payment method); 201 with the created record |
 | `/api/customers/{id}/goals` | Month-to-date spend against monthly budgets |
+| `POST /api/customers/{id}/goals` | Sets a monthly budget for one of the customer's categories; 409 if that category already has one |
 | `/api/customers/{id}/filters` | The customer's categories, period presets, payment methods, and the icon and colour choices for new categories |
 | `POST /api/customers/{id}/categories` | Adds a category (name, hex colour, icon) to that customer; 409 on a duplicate name |
 

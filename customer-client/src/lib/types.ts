@@ -113,6 +113,12 @@ export interface Filters {
   colors: string[];
 }
 
+// Body of POST /goals.
+export interface GoalCreate {
+  category: CategoryName;
+  monthlyBudget: number;
+}
+
 // Body of POST /categories.
 export interface CategoryCreate {
   name: string;

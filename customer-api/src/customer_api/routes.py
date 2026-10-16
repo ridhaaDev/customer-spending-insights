@@ -17,7 +17,7 @@ from customer_api.domain import (
     Transaction,
     cents_to_amount,
 )
-from customer_api.repository import CustomerRepository, DuplicateCategory, NewTransaction
+from customer_api.repository import CustomerRepository, DuplicateCategory, DuplicateGoal, NewTransaction
 from customer_api.schemas import (
     CategoryCreate,
     CategoryFilter,
@@ -28,6 +28,7 @@ from customer_api.schemas import (
     DateRangeOut,
     DateRangePreset,
     Filters,
+    GoalCreate,
     GoalList,
     GoalOut,
     MonthTrend,
@@ -252,20 +253,31 @@ def create_transaction(customer: CurrentCustomer, repo: Repo, body: TransactionC
 @router.get("/{customer_id}/goals")
 def spending_goals(customer: CurrentCustomer, repo: Repo, today: Today) -> GoalList:
     progress = services.goal_progress(repo.goals_for(customer.id), repo.transactions_for(customer.id), today)
-    return GoalList(
-        goals=[
-            GoalOut(
-                id=p.goal.id,
-                category=p.goal.category,
-                monthly_budget=cents_to_amount(p.goal.monthly_budget_cents),
-                current_spent=cents_to_amount(p.spent_cents),
-                percentage_used=p.percentage_used,
-                days_remaining=p.days_remaining,
-                status=p.status,
-            )
-            for p in progress
-        ]
+    return GoalList(goals=[_goal_out(p) for p in progress])
+
+
+def _goal_out(p: services.GoalProgress) -> GoalOut:
+    return GoalOut(
+        id=p.goal.id,
+        category=p.goal.category,
+        monthly_budget=cents_to_amount(p.goal.monthly_budget_cents),
+        current_spent=cents_to_amount(p.spent_cents),
+        percentage_used=p.percentage_used,
+        days_remaining=p.days_remaining,
+        status=p.status,
     )
+
+
+@router.post("/{customer_id}/goals", status_code=status.HTTP_201_CREATED, summary="Set a monthly budget for a category")
+def create_goal(customer: CurrentCustomer, repo: Repo, today: Today, body: GoalCreate) -> GoalOut:
+    if body.category not in repo.categories_for(customer.id):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=f"Unknown category {body.category!r}")
+    try:
+        goal = repo.add_goal(customer.id, body.category, body.monthly_budget_cents)
+    except DuplicateGoal:
+        raise HTTPException(status.HTTP_409_CONFLICT, detail=f"A budget for {body.category!r} already exists") from None
+    (progress,) = services.goal_progress([goal], repo.transactions_for(customer.id), today)
+    return _goal_out(progress)
 
 
 _PRESET_LABELS = {Period.D7: "Last 7 days", Period.D30: "Last 30 days", Period.D90: "Last 90 days", Period.Y1: "Last year"}

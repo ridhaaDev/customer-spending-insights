@@ -28,6 +28,10 @@ class CustomerRepository(Protocol):
 
     def goals_for(self, customer_id: str) -> list[Goal]: ...
 
+    def add_goal(self, customer_id: str, category: str, monthly_budget_cents: int) -> Goal:
+        """Raises DuplicateGoal if the customer already budgets that category."""
+        ...
+
     def categories_for(self, customer_id: str) -> dict[str, CategoryMeta]:
         """The customer's categories (name -> presentation), in insertion order."""
         ...
@@ -38,6 +42,10 @@ class CustomerRepository(Protocol):
 
 
 class DuplicateCategory(ValueError):
+    pass
+
+
+class DuplicateGoal(ValueError):
     pass
 
 
@@ -68,6 +76,7 @@ class InMemoryRepository:
         # Every customer starts with the default categories and can add their own.
         self._categories = {c.id: {k.value: v for k, v in CATEGORY_META.items()} for c in dataset.customers}
         self._next_id = len(dataset.transactions) + 1
+        self._next_goal_id = len(dataset.goals) + 1
         self._lock = threading.Lock()
 
     def list_customers(self) -> list[Customer]:
@@ -99,6 +108,21 @@ class InMemoryRepository:
 
     def goals_for(self, customer_id: str) -> list[Goal]:
         return self._goals.get(customer_id, [])
+
+    def add_goal(self, customer_id: str, category: str, monthly_budget_cents: int) -> Goal:
+        with self._lock:
+            current = self._goals.get(customer_id, [])
+            if any(g.category == category for g in current):
+                raise DuplicateGoal(category)
+            goal = Goal(
+                id=f"goal_{self._next_goal_id:03d}",
+                customer_id=customer_id,
+                category=category,
+                monthly_budget_cents=monthly_budget_cents,
+            )
+            self._next_goal_id += 1
+            self._goals[customer_id] = [*current, goal]
+        return goal
 
     def categories_for(self, customer_id: str) -> dict[str, CategoryMeta]:
         return self._categories.get(customer_id, {})

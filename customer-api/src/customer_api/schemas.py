@@ -171,3 +171,14 @@ class CategoryCreate(CamelModel):
     @classmethod
     def strip(cls, value: object) -> object:
         return value.strip() if isinstance(value, str) else value
+
+
+class GoalCreate(CamelModel):
+    """Body of POST /goals: a monthly budget in rand for one of the customer's categories."""
+
+    category: str = Field(min_length=1, max_length=40)
+    monthly_budget: Decimal = Field(gt=0, le=10_000_000, decimal_places=2)
+
+    @property
+    def monthly_budget_cents(self) -> int:
+        return int((self.monthly_budget * 100).to_integral_value())

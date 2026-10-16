@@ -6,6 +6,8 @@ import { CategoryForm } from "@/components/categories/CategoryForm";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DateRangeControl } from "@/components/dashboard/DateRangeControl";
 import { PeriodSelector } from "@/components/dashboard/PeriodSelector";
+import { BudgetSummaryCard } from "@/components/goals/BudgetSummaryCard";
+import { GoalForm } from "@/components/goals/GoalForm";
 import { GoalsPanel } from "@/components/goals/GoalsPanel";
 import { SummaryCards } from "@/components/summary/SummaryCards";
 import { Pagination } from "@/components/transactions/Pagination";
@@ -35,6 +37,12 @@ const cases: Record<string, () => React.ReactElement> = {
   SummaryCards: () => <SummaryCards summary={summary} period="30d" loading={false} error={null} onRetry={noop} />,
   CategoryBreakdown: () => <CategoryBreakdown data={spendingByCategory} loading={false} error={null} onRetry={noop} />,
   GoalsPanel: () => <GoalsPanel data={{ goals }} categories={categoryFilters} loading={false} error={null} onRetry={noop} />,
+  Budgets: () => (
+    <>
+      <BudgetSummaryCard goals={goals} />
+      <GoalForm categories={categoryFilters} budgeted={["Groceries"]} onSubmit={noop} onCancel={noop} />
+    </>
+  ),
   TrendsTable: () => <TrendsTable trends={trends} />,
   Transactions: () => (
     <Card>

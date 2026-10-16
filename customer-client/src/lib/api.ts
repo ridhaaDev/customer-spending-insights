@@ -2,6 +2,8 @@ import type {
   CategoryCreate,
   CategoryFilter,
   CustomerList,
+  Goal,
+  GoalCreate,
   Transaction,
   TransactionCreate,
   CustomerProfile,
@@ -137,6 +139,9 @@ export const api = {
 
   createCategory: (customerId: string, body: CategoryCreate) =>
     request<CategoryFilter>(`/api/customers/${encodeURIComponent(customerId)}/categories`, {}, { method: "POST", body }),
+
+  createGoal: (customerId: string, body: GoalCreate) =>
+    request<Goal>(`/api/customers/${encodeURIComponent(customerId)}/goals`, {}, { method: "POST", body }),
 
   goals: (customerId: string, signal?: AbortSignal) =>
     request<GoalList>(`/api/customers/${encodeURIComponent(customerId)}/goals`, {}, { signal }),
