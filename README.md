@@ -17,6 +17,10 @@ docker compose up --build
 - Dashboard: http://localhost:3000
 - API docs (Swagger UI): http://localhost:8000/docs
 
+If a port is already taken, `scripts/dev.sh` frees 3000, 8000 and 6006 (stopping the stack, then
+killing whatever else listens there) and brings the stack back up; `scripts/dev.sh --down` only
+frees the ports.
+
 Both containers bind-mount the source, so edits hot-reload. Set `MOCK_TODAY=2024-09-16` in the
 environment to pin the dataset's reference date (see below).
 
@@ -75,8 +79,9 @@ The API also ships an AWS Lambda entrypoint and SAM template; see [customer-api/
 | `/api/customers/{id}/spending/categories?period=&startDate=&endDate=` | Spend per category with share, colour and icon |
 | `/api/customers/{id}/spending/trends?months=` | Monthly totals, zero-filled, oldest first |
 | `/api/customers/{id}/transactions?limit=&offset=&category=&startDate=&endDate=&sortBy=` | Paginated, filterable, sortable transactions |
+| `POST /api/customers/{id}/transactions` | Records a transaction in memory (merchant, category, amount, date, description, payment method); 201 with the created record |
 | `/api/customers/{id}/goals` | Month-to-date spend against monthly budgets |
-| `/api/customers/{id}/filters` | Category metadata and period presets for the UI |
+| `/api/customers/{id}/filters` | Category metadata, period presets and payment methods for the UI |
 
 `period` is one of `7d`, `30d`, `90d`, `1y`, ending today. Unknown customers return 404; bad
 parameters (unknown category, inverted date range, limit > 100) return 422 with a message.
