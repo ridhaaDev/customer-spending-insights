@@ -15,7 +15,7 @@ import { TransactionFilters } from "@/components/transactions/TransactionFilters
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { TransactionTable } from "@/components/transactions/TransactionTable";
 import { TrendsTable } from "@/components/trends/TrendsTable";
-import { Card, ErrorState, PageHeader } from "@/components/ui";
+import { Card, ErrorState, Modal, PageHeader } from "@/components/ui";
 import {
   categoryColors,
   categoryFilters,
@@ -64,6 +64,11 @@ const cases: Record<string, () => React.ReactElement> = {
   ),
   CategoryForm: () => <CategoryForm colors={categoryColors} icons={categoryIcons} onSubmit={noop} onCancel={noop} />,
   ErrorState: () => <ErrorState message="Could not reach the API" onRetry={noop} />,
+  Modal: () => (
+    <Modal open onOpenChange={noop} title="Add transaction" description="Recorded against this customer.">
+      <TransactionForm categories={categoryFilters} paymentMethods={paymentMethods} defaultDate="2026-10-16T12:00" onSubmit={noop} onCancel={noop} />
+    </Modal>
+  ),
 };
 
 describe("accessibility (axe)", () => {
