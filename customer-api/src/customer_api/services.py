@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from datetime import date
 
 from customer_api.domain import (
-    Category,
     DateRange,
     Goal,
     GoalStatus,
@@ -53,7 +52,7 @@ def _average(total_cents: int, count: int) -> float:
 class Summary:
     total_cents: int
     transaction_count: int
-    top_category: Category | None
+    top_category: str | None
     spent_change: float | None
     transaction_change: float | None
 
@@ -83,14 +82,14 @@ def summarise(transactions: list[Transaction], window: DateRange) -> Summary:
 
 @dataclass(frozen=True, slots=True)
 class CategoryTotal:
-    category: Category
+    category: str
     amount_cents: int
     percentage: float
     transaction_count: int
 
 
-def _totals_by_category(transactions: list[Transaction]) -> dict[Category, int]:
-    totals: dict[Category, int] = defaultdict(int)
+def _totals_by_category(transactions: list[Transaction]) -> dict[str, int]:
+    totals: dict[str, int] = defaultdict(int)
     for t in transactions:
         totals[t.category] += t.amount_cents
     return totals
@@ -100,7 +99,7 @@ def by_category(transactions: list[Transaction], window: DateRange) -> tuple[int
     """Returns (total_cents, per-category totals sorted by amount, descending). Empty categories are omitted."""
     current = in_range(transactions, window)
     totals = _totals_by_category(current)
-    counts: dict[Category, int] = defaultdict(int)
+    counts: dict[str, int] = defaultdict(int)
     for t in current:
         counts[t.category] += 1
     grand = sum(totals.values())
@@ -161,7 +160,7 @@ _SORTERS = {
 def filter_transactions(
     transactions: list[Transaction],
     *,
-    category: Category | None,
+    category: str | None,
     start: date | None,
     end: date | None,
     sort_by: SortBy,

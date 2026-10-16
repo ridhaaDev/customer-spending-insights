@@ -236,7 +236,7 @@ def generate_dataset(seed: int, today: date, months: int = MONTHS_OF_HISTORY) ->
             customer_id=customer.id,
             occurred_at=when,
             merchant=merchant.name,
-            category=merchant.category,
+            category=merchant.category.value,
             amount_cents=cents,
             description=merchant.description,
             payment_method=rng.choice(merchant.payment_methods),
@@ -288,7 +288,7 @@ def generate_dataset(seed: int, today: date, months: int = MONTHS_OF_HISTORY) ->
                 Goal(
                     id=f"goal_{goal_seq:03d}",
                     customer_id=customer.id,
-                    category=category,
+                    category=category.value,
                     monthly_budget_cents=max(budget, 50_000),
                 )
             )

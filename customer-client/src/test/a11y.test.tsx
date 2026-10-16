@@ -2,6 +2,7 @@ import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { axe } from "vitest-axe";
 import { CategoryBreakdown } from "@/components/categories/CategoryBreakdown";
+import { CategoryForm } from "@/components/categories/CategoryForm";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DateRangeControl } from "@/components/dashboard/DateRangeControl";
 import { PeriodSelector } from "@/components/dashboard/PeriodSelector";
@@ -13,7 +14,18 @@ import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { TransactionTable } from "@/components/transactions/TransactionTable";
 import { TrendsTable } from "@/components/trends/TrendsTable";
 import { Card, ErrorState, PageHeader } from "@/components/ui";
-import { categoryFilters, goals, paymentMethods, profile, spendingByCategory, summary, transactions, trends } from "@/test/fixtures";
+import {
+  categoryColors,
+  categoryFilters,
+  categoryIcons,
+  goals,
+  paymentMethods,
+  profile,
+  spendingByCategory,
+  summary,
+  transactions,
+  trends,
+} from "@/test/fixtures";
 
 // jsdom has no layout engine, so contrast is checked in the browser (Storybook a11y addon, axe over CDP).
 const options = { rules: { "color-contrast": { enabled: false } } };
@@ -42,6 +54,7 @@ const cases: Record<string, () => React.ReactElement> = {
   TransactionForm: () => (
     <TransactionForm categories={categoryFilters} paymentMethods={paymentMethods} defaultDate="2026-10-16T12:00" onSubmit={noop} onCancel={noop} error="amount: must be positive" />
   ),
+  CategoryForm: () => <CategoryForm colors={categoryColors} icons={categoryIcons} onSubmit={noop} onCancel={noop} />,
   ErrorState: () => <ErrorState message="Could not reach the API" onRetry={noop} />,
 };
 

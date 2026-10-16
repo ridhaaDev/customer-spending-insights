@@ -81,9 +81,11 @@ The API also ships an AWS Lambda entrypoint and SAM template; see [customer-api/
 | `/api/customers/{id}/transactions?limit=&offset=&category=&startDate=&endDate=&sortBy=` | Paginated, filterable, sortable transactions |
 | `POST /api/customers/{id}/transactions` | Records a transaction in memory (merchant, category, amount, date, description, payment method); 201 with the created record |
 | `/api/customers/{id}/goals` | Month-to-date spend against monthly budgets |
-| `/api/customers/{id}/filters` | Category metadata, period presets and payment methods for the UI |
+| `/api/customers/{id}/filters` | The customer's categories, period presets, payment methods, and the icon and colour choices for new categories |
+| `POST /api/customers/{id}/categories` | Adds a category (name, hex colour, icon) to that customer; 409 on a duplicate name |
 
-`period` is one of `7d`, `30d`, `90d`, `1y`, ending today. Unknown customers return 404; bad
+Categories are per customer: six defaults plus any the customer adds. `period` is one of `7d`,
+`30d`, `90d`, `1y`, ending today. Unknown customers return 404; bad
 parameters (unknown category, inverted date range, limit > 100) return 422 with a message.
 
 The code is layered so the mock store can be swapped for a database without touching the endpoints:

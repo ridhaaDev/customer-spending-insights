@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Protocol
 
-from customer_api.domain import Category, Customer, Goal, PaymentMethod, Transaction
+from customer_api.domain import CATEGORY_META, DEFAULT_CATEGORY_META, CategoryMeta, Customer, Goal, PaymentMethod, Transaction
 from customer_api.mock_data import Dataset, generate_dataset
 
 
@@ -28,6 +28,18 @@ class CustomerRepository(Protocol):
 
     def goals_for(self, customer_id: str) -> list[Goal]: ...
 
+    def categories_for(self, customer_id: str) -> dict[str, CategoryMeta]:
+        """The customer's categories (name -> presentation), in insertion order."""
+        ...
+
+    def add_category(self, customer_id: str, name: str, meta: CategoryMeta) -> None:
+        """Raises DuplicateCategory if the customer already has a category with that name (case-insensitive)."""
+        ...
+
+
+class DuplicateCategory(ValueError):
+    pass
+
 
 @dataclass(frozen=True, slots=True)
 class NewTransaction:
@@ -36,7 +48,7 @@ class NewTransaction:
     customer_id: str
     occurred_at: datetime
     merchant: str
-    category: Category
+    category: str
     amount_cents: int
     description: str
     payment_method: PaymentMethod
@@ -53,6 +65,8 @@ class InMemoryRepository:
         for g in dataset.goals:
             goals[g.customer_id].append(g)
         self._goals = dict(goals)
+        # Every customer starts with the default categories and can add their own.
+        self._categories = {c.id: {k.value: v for k, v in CATEGORY_META.items()} for c in dataset.customers}
         self._next_id = len(dataset.transactions) + 1
         self._lock = threading.Lock()
 
@@ -85,6 +99,20 @@ class InMemoryRepository:
 
     def goals_for(self, customer_id: str) -> list[Goal]:
         return self._goals.get(customer_id, [])
+
+    def categories_for(self, customer_id: str) -> dict[str, CategoryMeta]:
+        return self._categories.get(customer_id, {})
+
+    def category_meta(self, customer_id: str, name: str) -> CategoryMeta:
+        return self.categories_for(customer_id).get(name, DEFAULT_CATEGORY_META)
+
+    def add_category(self, customer_id: str, name: str, meta: CategoryMeta) -> None:
+        with self._lock:
+            current = self._categories.setdefault(customer_id, {})
+            if any(existing.casefold() == name.casefold() for existing in current):
+                raise DuplicateCategory(name)
+            # Readers iterate without the lock, so replace the dict rather than mutate it.
+            self._categories[customer_id] = {**current, name: meta}
 
 
 class MockRepositoryProvider:

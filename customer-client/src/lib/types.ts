@@ -1,7 +1,8 @@
 // Wire types for customer-api. Field names are camelCase as the API serialises them.
 
 export type Period = "7d" | "30d" | "90d" | "1y";
-export type CategoryName = "Groceries" | "Entertainment" | "Transportation" | "Dining" | "Shopping" | "Utilities";
+// Categories are per-customer data (six defaults plus whatever the customer adds), so names are open strings.
+export type CategoryName = string;
 export type AccountType = "standard" | "premium" | "business";
 export type SortBy = "date_desc" | "date_asc" | "amount_desc" | "amount_asc";
 export type GoalStatus = "on_track" | "warning" | "exceeded";
@@ -107,6 +108,16 @@ export interface Filters {
   categories: CategoryFilter[];
   dateRangePresets: { label: string; value: Period }[];
   paymentMethods: string[];
+  // Choices offered when creating a category: lucide icon names and a colour-vision-checked palette.
+  icons: string[];
+  colors: string[];
+}
+
+// Body of POST /categories.
+export interface CategoryCreate {
+  name: string;
+  color: string;
+  icon: string;
 }
 
 // Body of POST /transactions. `date` is ISO 8601; omit it to record "now".

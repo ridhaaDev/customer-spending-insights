@@ -8,7 +8,7 @@ from decimal import Decimal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 
-from customer_api.domain import AccountType, Category, GoalStatus, PaymentMethod, Period
+from customer_api.domain import AccountType, GoalStatus, PaymentMethod, Period
 
 
 class CamelModel(BaseModel):
@@ -46,7 +46,7 @@ class SpendingSummary(CamelModel):
     total_spent: float
     transaction_count: int
     average_transaction: float
-    top_category: Category | None
+    top_category: str | None
     compared_to_previous: PeriodComparison
 
 
@@ -56,7 +56,7 @@ class DateRangeOut(CamelModel):
 
 
 class CategorySpend(CamelModel):
-    name: Category
+    name: str
     amount: float
     percentage: float
     transaction_count: int
@@ -85,7 +85,7 @@ class TransactionOut(CamelModel):
     id: str
     date: datetime
     merchant: str
-    category: Category
+    category: str
     amount: float
     description: str
     payment_method: PaymentMethod
@@ -107,7 +107,7 @@ class TransactionPage(CamelModel):
 
 class GoalOut(CamelModel):
     id: str
-    category: Category
+    category: str
     monthly_budget: float
     current_spent: float
     percentage_used: float
@@ -120,7 +120,7 @@ class GoalList(CamelModel):
 
 
 class CategoryFilter(CamelModel):
-    name: Category
+    name: str
     color: str
     icon: str
 
@@ -134,13 +134,16 @@ class Filters(CamelModel):
     categories: list[CategoryFilter]
     date_range_presets: list[DateRangePreset]
     payment_methods: list[PaymentMethod]
+    # Choices offered when creating a category.
+    icons: list[str]
+    colors: list[str]
 
 
 class TransactionCreate(CamelModel):
     """Body of POST /transactions. Amounts are in rand with at most two decimals."""
 
     merchant: str = Field(min_length=1, max_length=80)
-    category: Category
+    category: str = Field(min_length=1, max_length=40)
     amount: Decimal = Field(gt=0, le=1_000_000, decimal_places=2)
     # Defaults to now. Naive values are taken as UTC, matching how the API buckets by day.
     date: datetime | None = None
@@ -155,3 +158,16 @@ class TransactionCreate(CamelModel):
     @property
     def amount_cents(self) -> int:
         return int((self.amount * 100).to_integral_value())
+
+
+class CategoryCreate(CamelModel):
+    """Body of POST /categories. Colour is a hex value; icon is one of the names the dashboard can render."""
+
+    name: str = Field(min_length=1, max_length=40)
+    color: str = Field(pattern=r"^#[0-9a-fA-F]{6}$")
+    icon: str = Field(min_length=1, max_length=40)
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def strip(cls, value: object) -> object:
+        return value.strip() if isinstance(value, str) else value

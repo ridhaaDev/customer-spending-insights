@@ -6,9 +6,20 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 from customer_api import services
-from customer_api.domain import CATEGORY_META, Category, Customer, PaymentMethod, Period, SortBy, Transaction, cents_to_amount
-from customer_api.repository import CustomerRepository, NewTransaction
+from customer_api.domain import (
+    CATEGORY_COLORS,
+    CATEGORY_ICONS,
+    CategoryMeta,
+    Customer,
+    PaymentMethod,
+    Period,
+    SortBy,
+    Transaction,
+    cents_to_amount,
+)
+from customer_api.repository import CustomerRepository, DuplicateCategory, NewTransaction
 from customer_api.schemas import (
+    CategoryCreate,
     CategoryFilter,
     CategorySpend,
     CustomerList,
@@ -123,6 +134,7 @@ def spending_by_category(
 ) -> SpendingByCategory:
     window = _range_or_422(period, start_date, end_date, today)
     total, rows = services.by_category(repo.transactions_for(customer.id), window)
+    meta = repo.categories_for(customer.id)
     return SpendingByCategory(
         date_range=DateRangeOut(start_date=window.start, end_date=window.end),
         total_amount=cents_to_amount(total),
@@ -132,8 +144,8 @@ def spending_by_category(
                 amount=cents_to_amount(r.amount_cents),
                 percentage=r.percentage,
                 transaction_count=r.transaction_count,
-                color=CATEGORY_META[r.category].color,
-                icon=CATEGORY_META[r.category].icon,
+                color=_meta(meta, r.category).color,
+                icon=_meta(meta, r.category).icon,
             )
             for r in rows
         ],
@@ -167,11 +179,14 @@ def list_transactions(
     repo: Repo,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     offset: Annotated[int, Query(ge=0)] = 0,
-    category: Category | None = None,
+    category: str | None = None,
     start_date: StartDate = None,
     end_date: EndDate = None,
     sort_by: Annotated[SortBy, Query(alias="sortBy")] = SortBy.DATE_DESC,
 ) -> TransactionPage:
+    meta = repo.categories_for(customer.id)
+    if category is not None and category not in meta:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=f"Unknown category {category!r}")
     try:
         rows = services.filter_transactions(
             repo.transactions_for(customer.id), category=category, start=start_date, end=end_date, sort_by=sort_by
@@ -180,12 +195,19 @@ def list_transactions(
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
     page = rows[offset : offset + limit]
     return TransactionPage(
-        transactions=[_transaction_out(t) for t in page],
+        transactions=[_transaction_out(t, meta) for t in page],
         pagination=Pagination(total=len(rows), limit=limit, offset=offset, has_more=offset + limit < len(rows)),
     )
 
 
-def _transaction_out(t: Transaction) -> TransactionOut:
+DEFAULT_META = CategoryMeta(color="#6b7280", icon="receipt")
+
+
+def _meta(categories: dict[str, CategoryMeta], name: str) -> CategoryMeta:
+    return categories.get(name, DEFAULT_META)
+
+
+def _transaction_out(t: Transaction, categories: dict[str, CategoryMeta]) -> TransactionOut:
     return TransactionOut(
         id=t.id,
         date=t.occurred_at,
@@ -194,8 +216,8 @@ def _transaction_out(t: Transaction) -> TransactionOut:
         amount=cents_to_amount(t.amount_cents),
         description=t.description,
         payment_method=t.payment_method,
-        icon=CATEGORY_META[t.category].icon,
-        category_color=CATEGORY_META[t.category].color,
+        icon=_meta(categories, t.category).icon,
+        category_color=_meta(categories, t.category).color,
     )
 
 
@@ -210,6 +232,9 @@ def create_transaction(customer: CurrentCustomer, repo: Repo, body: TransactionC
     occurred_at = occurred_at.replace(tzinfo=UTC) if occurred_at.tzinfo is None else occurred_at.astimezone(UTC)
     if occurred_at > now + _FUTURE_GRACE:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail="date must not be in the future")
+    meta = repo.categories_for(customer.id)
+    if body.category not in meta:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=f"Unknown category {body.category!r}")
     created = repo.add_transaction(
         NewTransaction(
             customer_id=customer.id,
@@ -221,7 +246,7 @@ def create_transaction(customer: CurrentCustomer, repo: Repo, body: TransactionC
             payment_method=body.payment_method,
         )
     )
-    return _transaction_out(created)
+    return _transaction_out(created, meta)
 
 
 @router.get("/{customer_id}/goals")
@@ -247,9 +272,23 @@ _PRESET_LABELS = {Period.D7: "Last 7 days", Period.D30: "Last 30 days", Period.D
 
 
 @router.get("/{customer_id}/filters")
-def available_filters(customer: CurrentCustomer) -> Filters:
+def available_filters(customer: CurrentCustomer, repo: Repo) -> Filters:
     return Filters(
-        categories=[CategoryFilter(name=c, color=m.color, icon=m.icon) for c, m in CATEGORY_META.items()],
+        categories=[CategoryFilter(name=c, color=m.color, icon=m.icon) for c, m in repo.categories_for(customer.id).items()],
         date_range_presets=[DateRangePreset(label=label, value=p) for p, label in _PRESET_LABELS.items()],
         payment_methods=list(PaymentMethod),
+        icons=list(CATEGORY_ICONS),
+        colors=list(CATEGORY_COLORS),
     )
+
+
+@router.post("/{customer_id}/categories", status_code=status.HTTP_201_CREATED, summary="Add a category")
+def create_category(customer: CurrentCustomer, repo: Repo, body: CategoryCreate) -> CategoryFilter:
+    if body.icon not in CATEGORY_ICONS:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=f"Unknown icon {body.icon!r}")
+    meta = CategoryMeta(color=body.color.lower(), icon=body.icon)
+    try:
+        repo.add_category(customer.id, body.name, meta)
+    except DuplicateCategory:
+        raise HTTPException(status.HTTP_409_CONFLICT, detail=f"Category {body.name!r} already exists") from None
+    return CategoryFilter(name=body.name, color=meta.color, icon=meta.icon)

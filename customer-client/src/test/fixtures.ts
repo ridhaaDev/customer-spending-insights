@@ -22,6 +22,9 @@ export const categoryFilters: CategoryFilter[] = [
 
 const meta = Object.fromEntries(categoryFilters.map((c) => [c.name, c])) as Record<string, CategoryFilter>;
 
+export const categoryIcons = ["shopping-cart", "film", "car", "utensils", "shopping-bag", "zap", "house", "heart-pulse", "graduation-cap", "plane", "gift", "baby", "paw-print", "wrench", "briefcase", "coffee"];
+export const categoryColors = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"];
+
 export const paymentMethods = ["Credit Card", "Debit Card", "Debit Order", "EFT", "Instant EFT"];
 
 export const customers: CustomerSummary[] = [

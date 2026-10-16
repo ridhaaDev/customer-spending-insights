@@ -1,4 +1,6 @@
 import type {
+  CategoryCreate,
+  CategoryFilter,
   CustomerList,
   Transaction,
   TransactionCreate,
@@ -132,6 +134,9 @@ export const api = {
 
   createTransaction: (customerId: string, body: TransactionCreate) =>
     request<Transaction>(`/api/customers/${encodeURIComponent(customerId)}/transactions`, {}, { method: "POST", body }),
+
+  createCategory: (customerId: string, body: CategoryCreate) =>
+    request<CategoryFilter>(`/api/customers/${encodeURIComponent(customerId)}/categories`, {}, { method: "POST", body }),
 
   goals: (customerId: string, signal?: AbortSignal) =>
     request<GoalList>(`/api/customers/${encodeURIComponent(customerId)}/goals`, {}, { signal }),

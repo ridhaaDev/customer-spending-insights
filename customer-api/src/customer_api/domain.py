@@ -36,6 +36,30 @@ CATEGORY_META: dict[Category, CategoryMeta] = {
 }
 
 
+# Icons the dashboard can render for a category (lucide names) and a colour-vision-checked palette,
+# offered to users when they create their own categories.
+CATEGORY_ICONS: tuple[str, ...] = (
+    "shopping-cart",
+    "film",
+    "car",
+    "utensils",
+    "shopping-bag",
+    "zap",
+    "house",
+    "heart-pulse",
+    "graduation-cap",
+    "plane",
+    "gift",
+    "baby",
+    "paw-print",
+    "wrench",
+    "briefcase",
+    "coffee",
+)
+CATEGORY_COLORS: tuple[str, ...] = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948")
+DEFAULT_CATEGORY_META = CategoryMeta(color="#6b7280", icon="receipt")
+
+
 class AccountType(StrEnum):
     STANDARD = "standard"
     PREMIUM = "premium"
@@ -92,7 +116,7 @@ class Transaction:
     customer_id: str
     occurred_at: datetime  # timezone-aware UTC
     merchant: str
-    category: Category
+    category: str  # a name from the customer's category list
     amount_cents: int  # money is stored as integer cents so aggregation is exact
     description: str
     payment_method: PaymentMethod
@@ -106,7 +130,7 @@ class Transaction:
 class Goal:
     id: str
     customer_id: str
-    category: Category
+    category: str
     monthly_budget_cents: int
 
 

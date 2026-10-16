@@ -36,6 +36,7 @@ npm run storybook    # http://localhost:6006, component catalogue with a theme t
 | `/` | Redirects to the first customer |
 | `/customers/{id}` | Customer header, period selector, headline stats, recent transactions |
 | `/customers/{id}/categories` | Spend by category for a preset period or a custom date range |
+| `/customers/{id}/categories/new` | Form to add a category (name, colour swatch, icon) for this customer |
 | `/customers/{id}/trends` | Monthly totals for the last 6, 12 or 24 months, chart or table |
 | `/customers/{id}/budgets` | Month-to-date spend against each budget |
 | `/customers/{id}/transactions` | Full list with category, sort, date range and paging |
@@ -105,7 +106,7 @@ src/
     nav/            AppShell, ConnectedShell, TopNav, SideNav, ProfileMenu, ThemeMenu
     dashboard/      DashboardHeader, PeriodSelector, DateRangeControl (relative presets + calendar popover)
     summary/        SummaryCards, StatTile, DeltaBadge
-    categories/     CategoryBreakdown, ShareBar, CategoryRow
+    categories/     CategoryBreakdown, ShareBar, CategoryRow, CategoryForm
     trends/         TrendsChart, TrendsBarChart, TrendsTable, TrendTooltip, PeakLabel
     goals/          GoalsPanel, GoalRow, GoalMeter, StatusBadge
     transactions/   TransactionsPanel and RecentTransactions (query-connected), TransactionTable, TransactionFilters, Pagination
@@ -115,8 +116,8 @@ src/
 
 Components live in feature folders; the Storybook catalogue under `src/stories/` is organised by
 atomic-design level instead. Only the page components, `TransactionsPanel` and
-`RecentTransactions` touch queries, and `NewTransactionPage` owns the create mutation, which
-invalidates every cached query for that customer; everything else is presentational and has a story.
+`RecentTransactions` touch queries, and the New… pages own the create mutations, which
+invalidate every cached query for that customer; everything else is presentational and has a story.
 
 ## Deploying
 
