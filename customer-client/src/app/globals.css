@@ -120,8 +120,8 @@ div.rdp-root {
   --rdp-selected-border: 0;
   --rdp-day-height: 2.25rem;
   --rdp-day-width: 2.25rem;
-  --rdp-day_button-height: 2rem;
-  --rdp-day_button-width: 2rem;
+  --rdp-day_button-height: 1.875rem;
+  --rdp-day_button-width: 1.875rem;
   --rdp-nav_button-height: 1.75rem;
   --rdp-nav_button-width: 1.75rem;
   --rdp-weekday-opacity: 1;
@@ -145,12 +145,15 @@ div.rdp-root .rdp-day_button:hover:not([disabled]) {
   background-color: color-mix(in srgb, var(--accent) 18%, transparent);
   border-radius: 9999px;
 }
+/* The library bolds and enlarges selected days; keep them the same size as every other day. */
+div.rdp-root .rdp-selected,
 div.rdp-root .rdp-selected .rdp-day_button {
+  font-size: inherit;
   font-weight: 400;
 }
 div.rdp-root .rdp-range_start .rdp-day_button,
 div.rdp-root .rdp-range_end .rdp-day_button {
-  font-weight: 600;
+  font-weight: 500;
 }
 div.rdp-root .rdp-chevron {
   fill: var(--ink-secondary);
