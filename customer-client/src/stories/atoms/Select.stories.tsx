@@ -25,3 +25,5 @@ type Story = StoryObj<typeof meta>;
 export const WithLabel: Story = {};
 
 export const HiddenLabel: Story = { args: { hideLabel: true } };
+
+export const Stacked: Story = { args: { stacked: true }, decorators: [(Story) => <div className="w-64">{Story()}</div>] };

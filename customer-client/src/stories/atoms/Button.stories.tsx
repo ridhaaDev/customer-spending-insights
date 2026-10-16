@@ -14,6 +14,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const Primary: Story = { args: { variant: "primary", children: "Add transaction" } };
+
 export const Small: Story = { args: { size: "sm", children: "Table" } };
 
 export const WithIcon: Story = {

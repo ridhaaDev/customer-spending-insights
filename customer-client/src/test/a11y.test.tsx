@@ -9,10 +9,11 @@ import { GoalsPanel } from "@/components/goals/GoalsPanel";
 import { SummaryCards } from "@/components/summary/SummaryCards";
 import { Pagination } from "@/components/transactions/Pagination";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
+import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { TransactionTable } from "@/components/transactions/TransactionTable";
 import { TrendsTable } from "@/components/trends/TrendsTable";
 import { Card, ErrorState, PageHeader } from "@/components/ui";
-import { categoryFilters, goals, profile, spendingByCategory, summary, transactions, trends } from "@/test/fixtures";
+import { categoryFilters, goals, paymentMethods, profile, spendingByCategory, summary, transactions, trends } from "@/test/fixtures";
 
 // jsdom has no layout engine, so contrast is checked in the browser (Storybook a11y addon, axe over CDP).
 const options = { rules: { "color-contrast": { enabled: false } } };
@@ -38,6 +39,9 @@ const cases: Record<string, () => React.ReactElement> = {
     </>
   ),
   Header: () => <DashboardHeader profile={profile} error={null} onRetry={noop} />,
+  TransactionForm: () => (
+    <TransactionForm categories={categoryFilters} paymentMethods={paymentMethods} defaultDate="2026-10-16T12:00" onSubmit={noop} onCancel={noop} error="amount: must be positive" />
+  ),
   ErrorState: () => <ErrorState message="Could not reach the API" onRetry={noop} />,
 };
 

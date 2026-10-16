@@ -106,4 +106,15 @@ export interface CategoryFilter {
 export interface Filters {
   categories: CategoryFilter[];
   dateRangePresets: { label: string; value: Period }[];
+  paymentMethods: string[];
+}
+
+// Body of POST /transactions. `date` is ISO 8601; omit it to record "now".
+export interface TransactionCreate {
+  merchant: string;
+  category: CategoryName;
+  amount: number;
+  date?: string;
+  description?: string;
+  paymentMethod: string;
 }

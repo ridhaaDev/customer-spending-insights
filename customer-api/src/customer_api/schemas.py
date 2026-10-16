@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 
 from customer_api.domain import AccountType, Category, GoalStatus, PaymentMethod, Period
@@ -132,3 +133,25 @@ class DateRangePreset(CamelModel):
 class Filters(CamelModel):
     categories: list[CategoryFilter]
     date_range_presets: list[DateRangePreset]
+    payment_methods: list[PaymentMethod]
+
+
+class TransactionCreate(CamelModel):
+    """Body of POST /transactions. Amounts are in rand with at most two decimals."""
+
+    merchant: str = Field(min_length=1, max_length=80)
+    category: Category
+    amount: Decimal = Field(gt=0, le=1_000_000, decimal_places=2)
+    # Defaults to now. Naive values are taken as UTC, matching how the API buckets by day.
+    date: datetime | None = None
+    description: str = Field(default="", max_length=120)
+    payment_method: PaymentMethod
+
+    @field_validator("merchant", "description", mode="before")
+    @classmethod
+    def strip(cls, value: object) -> object:
+        return value.strip() if isinstance(value, str) else value
+
+    @property
+    def amount_cents(self) -> int:
+        return int((self.amount * 100).to_integral_value())

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import UTC, date, datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 from customer_api import services
-from customer_api.domain import CATEGORY_META, Category, Customer, Period, SortBy, cents_to_amount
-from customer_api.repository import CustomerRepository
+from customer_api.domain import CATEGORY_META, Category, Customer, PaymentMethod, Period, SortBy, Transaction, cents_to_amount
+from customer_api.repository import CustomerRepository, NewTransaction
 from customer_api.schemas import (
     CategoryFilter,
     CategorySpend,
@@ -25,6 +25,7 @@ from customer_api.schemas import (
     SpendingByCategory,
     SpendingSummary,
     SpendingTrends,
+    TransactionCreate,
     TransactionOut,
     TransactionPage,
 )
@@ -179,22 +180,48 @@ def list_transactions(
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
     page = rows[offset : offset + limit]
     return TransactionPage(
-        transactions=[
-            TransactionOut(
-                id=t.id,
-                date=t.occurred_at,
-                merchant=t.merchant,
-                category=t.category,
-                amount=cents_to_amount(t.amount_cents),
-                description=t.description,
-                payment_method=t.payment_method,
-                icon=CATEGORY_META[t.category].icon,
-                category_color=CATEGORY_META[t.category].color,
-            )
-            for t in page
-        ],
+        transactions=[_transaction_out(t) for t in page],
         pagination=Pagination(total=len(rows), limit=limit, offset=offset, has_more=offset + limit < len(rows)),
     )
+
+
+def _transaction_out(t: Transaction) -> TransactionOut:
+    return TransactionOut(
+        id=t.id,
+        date=t.occurred_at,
+        merchant=t.merchant,
+        category=t.category,
+        amount=cents_to_amount(t.amount_cents),
+        description=t.description,
+        payment_method=t.payment_method,
+        icon=CATEGORY_META[t.category].icon,
+        category_color=CATEGORY_META[t.category].color,
+    )
+
+
+# Tolerates clock skew between the client and the API.
+_FUTURE_GRACE = timedelta(minutes=5)
+
+
+@router.post("/{customer_id}/transactions", status_code=status.HTTP_201_CREATED, summary="Record a transaction")
+def create_transaction(customer: CurrentCustomer, repo: Repo, body: TransactionCreate) -> TransactionOut:
+    now = datetime.now(UTC)
+    occurred_at = body.date or now
+    occurred_at = occurred_at.replace(tzinfo=UTC) if occurred_at.tzinfo is None else occurred_at.astimezone(UTC)
+    if occurred_at > now + _FUTURE_GRACE:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail="date must not be in the future")
+    created = repo.add_transaction(
+        NewTransaction(
+            customer_id=customer.id,
+            occurred_at=occurred_at,
+            merchant=body.merchant,
+            category=body.category,
+            amount_cents=body.amount_cents,
+            description=body.description,
+            payment_method=body.payment_method,
+        )
+    )
+    return _transaction_out(created)
 
 
 @router.get("/{customer_id}/goals")
@@ -224,4 +251,5 @@ def available_filters(customer: CurrentCustomer) -> Filters:
     return Filters(
         categories=[CategoryFilter(name=c, color=m.color, icon=m.icon) for c, m in CATEGORY_META.items()],
         date_range_presets=[DateRangePreset(label=label, value=p) for p, label in _PRESET_LABELS.items()],
+        payment_methods=list(PaymentMethod),
     )

@@ -5,10 +5,11 @@ from __future__ import annotations
 
 import threading
 from collections import defaultdict
-from datetime import date
+from dataclasses import dataclass
+from datetime import date, datetime
 from typing import Protocol
 
-from customer_api.domain import Customer, Goal, Transaction
+from customer_api.domain import Category, Customer, Goal, PaymentMethod, Transaction
 from customer_api.mock_data import Dataset, generate_dataset
 
 
@@ -21,7 +22,24 @@ class CustomerRepository(Protocol):
         """All transactions for a customer, newest first."""
         ...
 
+    def add_transaction(self, transaction: NewTransaction) -> Transaction:
+        """Stores a new transaction and returns it with its assigned id."""
+        ...
+
     def goals_for(self, customer_id: str) -> list[Goal]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class NewTransaction:
+    """A transaction before the repository assigns its id."""
+
+    customer_id: str
+    occurred_at: datetime
+    merchant: str
+    category: Category
+    amount_cents: int
+    description: str
+    payment_method: PaymentMethod
 
 
 class InMemoryRepository:
@@ -35,6 +53,8 @@ class InMemoryRepository:
         for g in dataset.goals:
             goals[g.customer_id].append(g)
         self._goals = dict(goals)
+        self._next_id = len(dataset.transactions) + 1
+        self._lock = threading.Lock()
 
     def list_customers(self) -> list[Customer]:
         return list(self._customers.values())
@@ -44,6 +64,24 @@ class InMemoryRepository:
 
     def transactions_for(self, customer_id: str) -> list[Transaction]:
         return self._transactions.get(customer_id, [])
+
+    def add_transaction(self, new: NewTransaction) -> Transaction:
+        with self._lock:
+            transaction = Transaction(
+                id=f"txn_{self._next_id:06d}",
+                customer_id=new.customer_id,
+                occurred_at=new.occurred_at,
+                merchant=new.merchant,
+                category=new.category,
+                amount_cents=new.amount_cents,
+                description=new.description,
+                payment_method=new.payment_method,
+            )
+            self._next_id += 1
+            # Lists are read without the lock, so swap in a new sorted list instead of mutating in place.
+            current = self._transactions.get(new.customer_id, [])
+            self._transactions[new.customer_id] = sorted([*current, transaction], key=lambda t: t.occurred_at, reverse=True)
+        return transaction
 
     def goals_for(self, customer_id: str) -> list[Goal]:
         return self._goals.get(customer_id, [])

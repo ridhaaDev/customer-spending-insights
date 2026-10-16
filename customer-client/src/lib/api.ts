@@ -1,5 +1,7 @@
 import type {
   CustomerList,
+  Transaction,
+  TransactionCreate,
   CustomerProfile,
   Filters,
   GoalList,
@@ -37,10 +39,22 @@ export function buildUrl(path: string, params: Params = {}): string {
   return url.toString();
 }
 
-async function request<T>(path: string, params: Params = {}, signal?: AbortSignal): Promise<T> {
+interface RequestOptions {
+  signal?: AbortSignal;
+  method?: "GET" | "POST";
+  body?: unknown;
+}
+
+async function request<T>(path: string, params: Params = {}, { signal, method = "GET", body }: RequestOptions = {}): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(buildUrl(path, params), { signal, headers: { Accept: "application/json" }, cache: "no-store" });
+    res = await fetch(buildUrl(path, params), {
+      method,
+      signal,
+      headers: { Accept: "application/json", ...(body !== undefined ? { "Content-Type": "application/json" } : {}) },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      cache: "no-store",
+    });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
     throw new ApiError(0, "Could not reach the API");
@@ -52,7 +66,7 @@ async function request<T>(path: string, params: Params = {}, signal?: AbortSigna
     } catch {
       /* non-JSON error body */
     }
-    const message = typeof detail === "string" ? detail : `API returned ${res.status}`;
+    const message = describeDetail(detail) ?? `API returned ${res.status}`;
     throw new ApiError(res.status, message, detail);
   }
   try {
@@ -61,6 +75,23 @@ async function request<T>(path: string, params: Params = {}, signal?: AbortSigna
     // e.g. a proxy answering 200 with an HTML page
     throw new ApiError(res.status, "The API returned an unreadable response");
   }
+}
+
+// FastAPI validation errors arrive as a list of {loc, msg}; turn them into one readable line.
+function describeDetail(detail: unknown): string | undefined {
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    const parts = detail
+      .map((d) => {
+        if (!d || typeof d !== "object") return null;
+        const { loc, msg } = d as { loc?: unknown[]; msg?: string };
+        const field = Array.isArray(loc) ? String(loc[loc.length - 1]) : undefined;
+        return field && msg ? `${field}: ${msg}` : (msg ?? null);
+      })
+      .filter(Boolean);
+    if (parts.length) return parts.join("; ");
+  }
+  return undefined;
 }
 
 export interface TransactionQuery {
@@ -79,29 +110,32 @@ export interface CategoriesQuery {
 }
 
 export const api = {
-  health: (signal?: AbortSignal) => request<{ status: string }>("/health", {}, signal),
+  health: (signal?: AbortSignal) => request<{ status: string }>("/health", {}, { signal }),
 
-  listCustomers: (signal?: AbortSignal) => request<CustomerList>("/api/customers", {}, signal),
+  listCustomers: (signal?: AbortSignal) => request<CustomerList>("/api/customers", {}, { signal }),
 
   profile: (customerId: string, signal?: AbortSignal) =>
-    request<CustomerProfile>(`/api/customers/${encodeURIComponent(customerId)}/profile`, {}, signal),
+    request<CustomerProfile>(`/api/customers/${encodeURIComponent(customerId)}/profile`, {}, { signal }),
 
   summary: (customerId: string, period: Period, signal?: AbortSignal) =>
-    request<SpendingSummary>(`/api/customers/${encodeURIComponent(customerId)}/spending/summary`, { period }, signal),
+    request<SpendingSummary>(`/api/customers/${encodeURIComponent(customerId)}/spending/summary`, { period }, { signal }),
 
   // Either a preset period or a custom inclusive range; the API gives the range precedence.
   categories: (customerId: string, query: CategoriesQuery, signal?: AbortSignal) =>
-    request<SpendingByCategory>(`/api/customers/${encodeURIComponent(customerId)}/spending/categories`, { ...query }, signal),
+    request<SpendingByCategory>(`/api/customers/${encodeURIComponent(customerId)}/spending/categories`, { ...query }, { signal }),
 
   trends: (customerId: string, months: number, signal?: AbortSignal) =>
-    request<SpendingTrends>(`/api/customers/${encodeURIComponent(customerId)}/spending/trends`, { months }, signal),
+    request<SpendingTrends>(`/api/customers/${encodeURIComponent(customerId)}/spending/trends`, { months }, { signal }),
 
   transactions: (customerId: string, query: TransactionQuery, signal?: AbortSignal) =>
-    request<TransactionPage>(`/api/customers/${encodeURIComponent(customerId)}/transactions`, { ...query }, signal),
+    request<TransactionPage>(`/api/customers/${encodeURIComponent(customerId)}/transactions`, { ...query }, { signal }),
+
+  createTransaction: (customerId: string, body: TransactionCreate) =>
+    request<Transaction>(`/api/customers/${encodeURIComponent(customerId)}/transactions`, {}, { method: "POST", body }),
 
   goals: (customerId: string, signal?: AbortSignal) =>
-    request<GoalList>(`/api/customers/${encodeURIComponent(customerId)}/goals`, {}, signal),
+    request<GoalList>(`/api/customers/${encodeURIComponent(customerId)}/goals`, {}, { signal }),
 
   filters: (customerId: string, signal?: AbortSignal) =>
-    request<Filters>(`/api/customers/${encodeURIComponent(customerId)}/filters`, {}, signal),
+    request<Filters>(`/api/customers/${encodeURIComponent(customerId)}/filters`, {}, { signal }),
 };

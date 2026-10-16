@@ -22,6 +22,8 @@ export const categoryFilters: CategoryFilter[] = [
 
 const meta = Object.fromEntries(categoryFilters.map((c) => [c.name, c])) as Record<string, CategoryFilter>;
 
+export const paymentMethods = ["Credit Card", "Debit Card", "Debit Order", "EFT", "Instant EFT"];
+
 export const customers: CustomerSummary[] = [
   { customerId: "10001", name: "Thandi Mokoena", email: "thandi.mokoena@example.com", accountType: "premium" },
   { customerId: "10002", name: "Johan van der Merwe", email: "johan.vdm@example.com", accountType: "standard" },

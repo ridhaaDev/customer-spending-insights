@@ -39,6 +39,7 @@ npm run storybook    # http://localhost:6006, component catalogue with a theme t
 | `/customers/{id}/trends` | Monthly totals for the last 6, 12 or 24 months, chart or table |
 | `/customers/{id}/budgets` | Month-to-date spend against each budget |
 | `/customers/{id}/transactions` | Full list with category, sort, date range and paging |
+| `/customers/{id}/transactions/new` | Form to record a transaction; on success every view for that customer refreshes |
 
 View state lives in the URL so every view is a shareable link: `?period=7d|30d|90d|1y`,
 `?from=YYYY-MM-DD&to=YYYY-MM-DD` (overrides the period), `?months=6|12|24`. Switching customer
@@ -109,7 +110,8 @@ src/
 
 Components live in feature folders; the Storybook catalogue under `src/stories/` is organised by
 atomic-design level instead. Only the page components, `TransactionsPanel` and
-`RecentTransactions` touch queries; everything else is presentational and has a story.
+`RecentTransactions` touch queries, and `NewTransactionPage` owns the create mutation, which
+invalidates every cached query for that customer; everything else is presentational and has a story.
 
 ## Deploying
 
