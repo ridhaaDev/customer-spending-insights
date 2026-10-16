@@ -37,6 +37,7 @@
     --accent-soft: #86b6ef;
     --accent-soft-ink: #0b1a33;
     --accent-ink: #5598e7;
+    --page-background: var(--surface);
   }
 }
 
@@ -53,6 +54,7 @@
   --accent-soft: #86b6ef;
   --accent-soft-ink: #0b1a33;
   --accent-ink: #5598e7;
+  --page-background: var(--surface);
 }
 
 /* Candy: a light theme on a lavender-to-pink gradient with purple ink and a violet accent. */

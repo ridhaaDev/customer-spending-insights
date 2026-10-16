@@ -3,6 +3,15 @@
 A responsive financial analytics dashboard showing a customer's spending, backed by an API that
 serves realistic mocked transaction history.
 
+![Overview page in the light theme: headline stats, period selector and recent transactions](docs/overview-light.png)
+
+<details>
+<summary>Categories page in the dark theme</summary>
+
+![Categories page in the dark theme with the 90-day breakdown](docs/categories-dark.png)
+
+</details>
+
 | Part | Stack | Folder |
 |------|-------|--------|
 | API | Python 3.11, FastAPI, Pydantic v2, pytest, ruff | [`customer-api/`](customer-api/) |

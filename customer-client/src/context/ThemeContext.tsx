@@ -1,10 +1,11 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
 
 export type Theme = "system" | "light" | "dark" | "candy";
 export const THEMES: Theme[] = ["system", "light", "dark", "candy"];
 export const THEME_STORAGE_KEY = "spending-insights.theme";
+const CHANGE_EVENT = "spending-insights:theme";
 
 interface ThemeState {
   theme: Theme;
@@ -18,7 +19,6 @@ function isTheme(value: unknown): value is Theme {
 }
 
 function readSavedTheme(): Theme {
-  if (typeof window === "undefined") return "system";
   try {
     const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
     return isTheme(saved) ? saved : "system";
@@ -33,18 +33,32 @@ export function applyTheme(theme: Theme) {
   else document.documentElement.dataset.theme = theme;
 }
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(readSavedTheme);
+function subscribe(onChange: () => void) {
+  window.addEventListener(CHANGE_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(CHANGE_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
 
-  const setTheme = (next: Theme) => {
-    setThemeState(next);
-    applyTheme(next);
+// The server always renders "system"; the browser's saved choice takes over after hydration
+// without a mismatch, and the inline script in the layout has already applied it to <html>.
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const theme = useSyncExternalStore(subscribe, readSavedTheme, () => "system" as Theme);
+
+  // Keeps <html> in step with the store, and covers the case where the bootstrap script did not run.
+  useEffect(() => applyTheme(theme), [theme]);
+
+  const setTheme = useCallback((next: Theme) => {
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {
-      /* storage unavailable: the choice still lasts for this session */
+      /* storage unavailable: still apply it for this page */
     }
-  };
+    applyTheme(next);
+    window.dispatchEvent(new Event(CHANGE_EVENT));
+  }, []);
 
   return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
 }
