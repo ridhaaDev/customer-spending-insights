@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatChange, formatMonth, formatZAR } from "./format";
+import { formatChange, formatMonth, formatZAR, hasAtMostTwoDecimals } from "./format";
 
 // Intl inserts non-breaking and narrow spaces; normalise so assertions are about digits and symbols.
 const tidy = (s: string) => s.replace(/[\s  ]+/g, " ");
@@ -34,5 +34,15 @@ describe("formatMonth", () => {
   it("renders short and long month names without timezone drift", () => {
     expect(formatMonth("2024-09")).toBe("Sept");
     expect(formatMonth("2024-01", "long")).toBe("January 2024");
+  });
+});
+
+describe("hasAtMostTwoDecimals", () => {
+  it("accepts cents-representable amounts despite floating point", () => {
+    for (const v of [78.9, 0.1, 1.15, 4.35, 2500, 89.5, 1234.56]) expect(hasAtMostTwoDecimals(v)).toBe(true);
+  });
+
+  it("rejects finer fractions", () => {
+    for (const v of [12.345, 0.001, 78.901]) expect(hasAtMostTwoDecimals(v)).toBe(false);
   });
 });

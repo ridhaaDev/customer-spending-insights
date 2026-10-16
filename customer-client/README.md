@@ -36,12 +36,12 @@ npm run storybook    # http://localhost:6006, component catalogue with a theme t
 | `/` | Redirects to the first customer |
 | `/customers/{id}` | Customer header, period selector, headline stats, recent transactions |
 | `/customers/{id}/categories` | Spend by category for a preset period or a custom date range |
-| `/customers/{id}/categories/new` | Form to add a category (name, colour swatch, icon) for this customer |
 | `/customers/{id}/trends` | Monthly totals for the last 6, 12 or 24 months, chart or table |
 | `/customers/{id}/budgets` | Amount left this month across all budgets, and month-to-date spend against each |
-| `/customers/{id}/budgets/new` | Form to set a monthly budget for a category that has none yet |
 | `/customers/{id}/transactions` | Full list with category, sort, date range and paging |
-| `/customers/{id}/transactions/new` | Form to record a transaction; on success every view for that customer refreshes |
+
+Each of those pages has an Add button that opens a modal form (transaction, category, budget);
+the mutation invalidates the customer's cached queries and closes the modal on success.
 
 View state lives in the URL so every view is a shareable link: `?period=7d|30d|90d|1y`,
 `?from=YYYY-MM-DD&to=YYYY-MM-DD` (overrides the period), `?months=6|12|24`. Switching customer
@@ -102,22 +102,22 @@ src/
   components/
     pages/          one client page component per route, plus the shared PageFrame
     providers/      QueryProvider
-    ui/             primitives: Button, Card, CardHeader, Select, Avatar, Skeleton, SegmentedControl, PageHeader, states
+    ui/             primitives: Button, Card, CardHeader, Select, Avatar, Skeleton, SegmentedControl, PageHeader, Modal, states
     category/       CategoryIcon, CategoryChip
     nav/            AppShell, ConnectedShell, TopNav, SideNav, ProfileMenu, ThemeMenu
     dashboard/      DashboardHeader, PeriodSelector, DateRangeControl (relative presets + calendar popover)
     summary/        SummaryCards, StatTile, DeltaBadge
-    categories/     CategoryBreakdown, ShareBar, CategoryRow, CategoryForm
+    categories/     CategoryBreakdown, ShareBar, CategoryRow, CategoryForm, AddCategoryDialog
     trends/         TrendsChart, TrendsBarChart, TrendsTable, TrendTooltip, PeakLabel
-    goals/          GoalsPanel, GoalRow, GoalMeter, StatusBadge, BudgetSummaryCard, GoalForm
-    transactions/   TransactionsPanel and RecentTransactions (query-connected), TransactionTable, TransactionFilters, Pagination
+    goals/          GoalsPanel, GoalRow, GoalMeter, StatusBadge, BudgetSummaryCard, GoalForm, AddBudgetDialog
+    transactions/   TransactionsPanel, RecentTransactions, AddTransactionDialog (query-connected), TransactionForm, TransactionTable, TransactionFilters, Pagination
   stories/          Storybook catalogue by atomic level: atoms, molecules, organisms, templates
   test/fixtures.ts  sample payloads shared by stories and tests
 ```
 
 Components live in feature folders; the Storybook catalogue under `src/stories/` is organised by
 atomic-design level instead. Only the page components, `TransactionsPanel` and
-`RecentTransactions` touch queries, and the New… pages own the create mutations, which
+`RecentTransactions` touch queries, and the Add…Dialog components own the create mutations, which
 invalidate every cached query for that customer; everything else is presentational and has a story.
 
 ## Deploying

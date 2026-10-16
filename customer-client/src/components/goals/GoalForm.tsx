@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button, Select } from "@/components/ui";
+import { hasAtMostTwoDecimals } from "@/lib/format";
 import type { CategoryFilter, GoalCreate } from "@/lib/types";
 
 interface Props {
@@ -31,7 +32,7 @@ export function GoalForm({ categories, budgeted = [], onSubmit, onCancel, submit
     if (!category) return setLocalError("Choose a category.");
     const monthlyBudget = Number(amount);
     if (!Number.isFinite(monthlyBudget) || monthlyBudget <= 0) return setLocalError("Budget must be more than zero.");
-    if (Math.round(monthlyBudget * 100) !== monthlyBudget * 100) return setLocalError("Budget can have at most two decimals.");
+    if (!hasAtMostTwoDecimals(monthlyBudget)) return setLocalError("Budget can have at most two decimals.");
     setLocalError(null);
     onSubmit({ category, monthlyBudget });
   };

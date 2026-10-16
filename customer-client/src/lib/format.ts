@@ -69,3 +69,10 @@ export const PERIOD_LABEL: Record<Period, string> = {
   "90d": "90 days",
   "1y": "12 months",
 };
+
+// True for amounts representable in cents. Compares against the rounded cents with a tolerance,
+// because e.g. 78.9 * 100 is 7890.000000000001 in floating point.
+export function hasAtMostTwoDecimals(amount: number): boolean {
+  const cents = amount * 100;
+  return Math.abs(cents - Math.round(cents)) < 1e-6;
+}

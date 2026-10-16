@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button, Select } from "@/components/ui";
+import { hasAtMostTwoDecimals } from "@/lib/format";
 import type { CategoryFilter, CategoryName, TransactionCreate } from "@/lib/types";
 
 export interface TransactionFormValues {
@@ -35,7 +36,7 @@ export function toBody(v: TransactionFormValues): { body: TransactionCreate } | 
   if (!v.paymentMethod) return { error: "Choose a payment method." };
   const amount = Number(v.amount);
   if (!Number.isFinite(amount) || amount <= 0) return { error: "Amount must be more than zero." };
-  if (Math.round(amount * 100) !== amount * 100) return { error: "Amount can have at most two decimals." };
+  if (!hasAtMostTwoDecimals(amount)) return { error: "Amount can have at most two decimals." };
   if (!v.date) return { error: "Date is required." };
   return {
     body: {
