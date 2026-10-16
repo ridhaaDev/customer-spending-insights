@@ -1,6 +1,7 @@
 import { ChartColumn, ChartPie, LayoutDashboard, Receipt, Target, type LucideProps } from "lucide-react";
 import Link from "next/link";
 import type { ComponentType } from "react";
+import { customerPath, type Section } from "@/lib/params";
 
 export interface NavItem {
   href: string;
@@ -8,26 +9,38 @@ export interface NavItem {
   Icon: ComponentType<LucideProps>;
 }
 
-export const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Overview", Icon: LayoutDashboard },
-  { href: "/categories", label: "Categories", Icon: ChartPie },
-  { href: "/trends", label: "Trends", Icon: ChartColumn },
-  { href: "/budgets", label: "Budgets", Icon: Target },
-  { href: "/transactions", label: "Transactions", Icon: Receipt },
+const SECTIONS: { section: Section; label: string; Icon: ComponentType<LucideProps> }[] = [
+  { section: "", label: "Overview", Icon: LayoutDashboard },
+  { section: "categories", label: "Categories", Icon: ChartPie },
+  { section: "trends", label: "Trends", Icon: ChartColumn },
+  { section: "budgets", label: "Budgets", Icon: Target },
+  { section: "transactions", label: "Transactions", Icon: Receipt },
 ];
 
-interface Props {
-  activeHref: string;
-  onNavigate?: () => void;
-  items?: NavItem[];
+// Links for one customer; the search string (period etc.) is carried across sections.
+export function navItemsFor(customerId: string, search = ""): NavItem[] {
+  return SECTIONS.map(({ section, label, Icon }) => ({
+    href: search ? `${customerPath(customerId, section)}?${search}` : customerPath(customerId, section),
+    label,
+    Icon,
+  }));
 }
 
-export function SideNav({ activeHref, onNavigate, items = NAV_ITEMS }: Props) {
+interface Props {
+  items: NavItem[];
+  // Pathname only; items are matched on their path, ignoring any search string.
+  activeHref: string;
+  onNavigate?: () => void;
+}
+
+const pathOf = (href: string) => href.split("?")[0];
+
+export function SideNav({ items, activeHref, onNavigate }: Props) {
   return (
     <nav aria-label="Pages">
       <ul className="space-y-0.5">
         {items.map(({ href, label, Icon }) => {
-          const active = href === activeHref;
+          const active = pathOf(href) === activeHref;
           return (
             <li key={href}>
               <Link

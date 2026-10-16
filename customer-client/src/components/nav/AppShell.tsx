@@ -3,13 +3,14 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState, type ReactNode } from "react";
 import type { CustomerSummary } from "@/lib/types";
-import { SideNav } from "./SideNav";
+import { SideNav, type NavItem } from "./SideNav";
 import { TopNav } from "./TopNav";
 
 interface Props {
   customers: CustomerSummary[] | undefined;
   currentId: string | null;
   onSwitch: (customerId: string) => void;
+  items: NavItem[];
   activeHref: string;
   tools?: ReactNode;
   children: ReactNode;
@@ -17,7 +18,7 @@ interface Props {
 
 // Top bar plus a left column on large screens; below that the nav is a dialog-backed drawer
 // so focus is trapped while open and returned to the menu button on close.
-export function AppShell({ customers, currentId, onSwitch, activeHref, tools, children }: Props) {
+export function AppShell({ customers, currentId, onSwitch, items, activeHref, tools, children }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -41,7 +42,7 @@ export function AppShell({ customers, currentId, onSwitch, activeHref, tools, ch
       <div className="flex flex-1">
         <aside className="hidden w-56 shrink-0 border-r border-line bg-card lg:block">
           <div className="sticky top-14 p-3">
-            <SideNav activeHref={activeHref} />
+            <SideNav items={items} activeHref={activeHref} />
           </div>
         </aside>
 
@@ -53,7 +54,7 @@ export function AppShell({ customers, currentId, onSwitch, activeHref, tools, ch
               className="fixed inset-y-0 left-0 top-14 z-20 w-64 bg-card p-3 shadow-xl focus:outline-none lg:hidden"
             >
               <Dialog.Title className="sr-only">Navigation</Dialog.Title>
-              <SideNav activeHref={activeHref} onNavigate={() => setMenuOpen(false)} />
+              <SideNav items={items} activeHref={activeHref} onNavigate={() => setMenuOpen(false)} />
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog.Root>

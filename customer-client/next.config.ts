@@ -1,13 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Static export: `next build` writes plain HTML/JS/CSS to ./out for S3 + CloudFront.
-  // Server-only features (server actions, API routes, dynamic SSR, middleware,
-  // cacheComponents, partialPrefetching) are not available in this mode.
-  output: "export",
+  // Server-rendered. `standalone` emits a self-contained Node server for the Docker/Lambda images.
+  output: "standalone",
   images: {
-    // next/image optimisation needs a server; serve images as-is from S3.
+    // No image optimisation service is needed for this app; keeps the Lambda image small.
     unoptimized: true,
+  },
+  experimental: {
+    // Recently visited pages render instantly from the router cache; data freshness is TanStack's job.
+    staleTimes: { dynamic: 30 },
   },
   turbopack: {
     rules: {

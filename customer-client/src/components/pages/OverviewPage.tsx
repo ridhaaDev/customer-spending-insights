@@ -1,44 +1,31 @@
 "use client";
 
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { PeriodSelector } from "@/components/dashboard/PeriodSelector";
 import { SummaryCards } from "@/components/summary/SummaryCards";
 import { RecentTransactions } from "@/components/transactions/RecentTransactions";
-import { useDashboard } from "@/context/DashboardContext";
-import { useQuery } from "@/hooks/useQuery";
-import { api } from "@/lib/api";
+import { useUrlState } from "@/hooks/useUrlState";
+import { filtersQuery, profileQuery, summaryQuery } from "@/lib/queries";
 import { PageFrame } from "./PageFrame";
 
-export function OverviewPage() {
-  const { period, setPeriod } = useDashboard();
+export function OverviewPage({ customerId }: { customerId: string }) {
+  const { period, setPeriod } = useUrlState();
+  const profile = useQuery(profileQuery(customerId));
+  const filters = useQuery(filtersQuery(customerId));
+  const summary = useQuery({ ...summaryQuery(customerId, period), placeholderData: keepPreviousData });
   return (
     <PageFrame>
-      {(customerId) => {
-        const enabled = customerId !== null;
-        const cid = customerId ?? "";
-        return <Overview cid={cid} enabled={enabled} period={period} setPeriod={setPeriod} />;
-      }}
-    </PageFrame>
-  );
-}
-
-interface Props {
-  cid: string;
-  enabled: boolean;
-  period: ReturnType<typeof useDashboard>["period"];
-  setPeriod: ReturnType<typeof useDashboard>["setPeriod"];
-}
-
-function Overview({ cid, enabled, period, setPeriod }: Props) {
-  const profile = useQuery(`profile:${cid}`, (s) => api.profile(cid, s), { enabled });
-  const filters = useQuery(`filters:${cid}`, (s) => api.filters(cid, s), { enabled });
-  const summary = useQuery(`summary:${cid}:${period}`, (s) => api.summary(cid, period, s), { enabled });
-  return (
-    <>
       <DashboardHeader profile={profile.data} error={profile.error} onRetry={profile.refetch} />
       <PeriodSelector value={period} onChange={setPeriod} presets={filters.data?.dateRangePresets} />
-      <SummaryCards summary={summary.data} period={period} loading={summary.loading} error={summary.error} onRetry={summary.refetch} />
-      {enabled && <RecentTransactions key={cid} customerId={cid} />}
-    </>
+      <SummaryCards
+        summary={summary.data}
+        period={period}
+        loading={summary.isPlaceholderData}
+        error={summary.error}
+        onRetry={summary.refetch}
+      />
+      <RecentTransactions customerId={customerId} />
+    </PageFrame>
   );
 }

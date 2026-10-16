@@ -1,16 +1,15 @@
 "use client";
 
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Card, CardHeader, EmptyState, ErrorState, Refreshing, Skeleton } from "@/components/ui";
-import { useQuery } from "@/hooks/useQuery";
-import { api } from "@/lib/api";
 import { formatInteger } from "@/lib/format";
+import { transactionsQuery } from "@/lib/queries";
+import { buildTransactionQuery, PAGE_SIZE } from "@/lib/transactions-query";
 import type { CategoryFilter, DateRangeValue, SortBy } from "@/lib/types";
 import { Pagination } from "./Pagination";
 import { TransactionFilters } from "./TransactionFilters";
 import { TransactionTable } from "./TransactionTable";
-
-const PAGE_SIZE = 10;
 
 interface Props {
   customerId: string;
@@ -19,16 +18,17 @@ interface Props {
   dateRange?: DateRangeValue | null;
 }
 
-// Data-connected: owns the filter and paging state and fetches each page.
+// Owns the filter and paging state; each page is its own cached query.
 export function TransactionsPanel({ customerId, categories, dateRange = null }: Props) {
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("date_desc");
   const [offset, setOffset] = useState(0);
 
-  const query = { limit: PAGE_SIZE, offset, category: category || undefined, sortBy, ...dateRange };
-  const { data, loading, error, refetch } = useQuery(`transactions:${customerId}:${JSON.stringify(query)}`, (signal) =>
-    api.transactions(customerId, query, signal),
-  );
+  const query = buildTransactionQuery({ offset, category, sortBy, dateRange });
+  const { data, isPlaceholderData, error, refetch } = useQuery({
+    ...transactionsQuery(customerId, query),
+    placeholderData: keepPreviousData,
+  });
 
   const changeCategory = (value: string) => {
     setCategory(value);
@@ -57,7 +57,7 @@ export function TransactionsPanel({ customerId, categories, dateRange = null }: 
         }
       />
       {error && !data ? (
-        <ErrorState message={error.message} onRetry={refetch} />
+        <ErrorState message={error.message} onRetry={() => void refetch()} />
       ) : !data ? (
         <div className="space-y-2">
           {Array.from({ length: 6 }, (_, i) => (
@@ -67,7 +67,7 @@ export function TransactionsPanel({ customerId, categories, dateRange = null }: 
       ) : data.transactions.length === 0 ? (
         <EmptyState message="No transactions match these filters." />
       ) : (
-        <Refreshing loading={loading}>
+        <Refreshing loading={isPlaceholderData}>
           <TransactionTable transactions={data.transactions} />
           <Pagination
             offset={offset}

@@ -6,7 +6,7 @@ serves realistic mocked transaction history.
 | Part | Stack | Folder |
 |------|-------|--------|
 | API | Python 3.11, FastAPI, Pydantic v2, pytest, ruff | [`customer-api/`](customer-api/) |
-| Dashboard | Next.js 16 (App Router, static export), React 19, TypeScript, Tailwind v4, Recharts, Vitest | [`customer-client/`](customer-client/) |
+| Dashboard | Next.js 16 (App Router, server-rendered), React 19, TanStack Query, TypeScript, Tailwind v4, Radix, Recharts, Storybook, Vitest | [`customer-client/`](customer-client/) |
 
 ## Quick start (Docker)
 
@@ -56,7 +56,7 @@ cd customer-client && npm test && npm run lint && npm run typecheck
 # API image (non-root, no reload)
 docker build -t customer-api --target prod customer-api
 
-# Dashboard: static export to customer-client/out, served by nginx in the image
+# Dashboard: standalone Next server (see customer-client/README.md for the Lambda image)
 docker build -t customer-client --target prod --build-arg NEXT_PUBLIC_API_URL=https://api.example.com customer-client
 ```
 
@@ -93,12 +93,13 @@ The code is layered so the mock store can be swapped for a database without touc
 
 ### Dashboard
 
-A single client-rendered page, exported statically so it can be served from any static host (S3,
-nginx, …). One period selector scopes the summary tiles and category breakdown; the monthly chart
-always shows the last 12 months; the transactions table has its own category, sort and paging
-controls. While a refetch is in flight the previous data is held at reduced opacity rather than
-replaced by a skeleton. Charts have a table view, status is never conveyed by colour alone, and the
-layout adapts from phone width up. Light and dark themes follow the OS setting.
+One route per concern under `/customers/{id}`: overview with recent transactions, categories,
+trends, budgets and the full transaction list. Routes are server components that prefetch their
+data into TanStack Query and hydrate the client, so the first HTML already carries the numbers;
+after that the client cache makes navigation instant and keeps previous data on screen while a
+change loads. View state (customer, period, date range, months) lives in the URL. The UI is built
+from small presentational components catalogued in Storybook, with Radix primitives for keyboard
+and focus behaviour, four themes, and an axe suite in the tests.
 
 ## Design notes
 
@@ -108,5 +109,5 @@ layout adapts from phone width up. Light and dark themes follow the OS setting.
 - **Category colours** were re-chosen from the original draft palette after a colour-vision check:
   the draft had two near-identical blues and a yellow that failed contrast. The UI pairs every
   colour with an icon and a text label so no information depends on hue alone.
-- **Not done (deliberately, for scope):** authentication, a real database, custom date-range
-  pickers in the UI (the API already supports `startDate`/`endDate`), and end-to-end browser tests.
+- **Not done (deliberately, for scope):** authentication, a real database, and end-to-end browser
+  tests.

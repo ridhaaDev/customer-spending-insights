@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ConnectedShell } from "@/components/nav/ConnectedShell";
-import { DashboardProvider } from "@/context/DashboardContext";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { THEME_STORAGE_KEY, ThemeProvider } from "@/context/ThemeContext";
 import "./globals.css";
 
@@ -31,9 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <DashboardProvider>
-            <ConnectedShell>{children}</ConnectedShell>
-          </DashboardProvider>
+          <QueryProvider>{children}</QueryProvider>
         </ThemeProvider>
       </body>
     </html>

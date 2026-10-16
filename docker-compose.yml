@@ -25,7 +25,9 @@ services:
       context: ./customer-client
       target: dev
     environment:
+      # The browser calls the API via the host; the Next server calls it over the compose network.
       NEXT_PUBLIC_API_URL: http://localhost:8000
+      API_URL: http://api:8000
     ports:
       - "3000:3000"
     volumes:

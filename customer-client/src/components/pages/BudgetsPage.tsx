@@ -1,24 +1,26 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { GoalsPanel } from "@/components/goals/GoalsPanel";
 import { PageHeader } from "@/components/ui";
-import { useQuery } from "@/hooks/useQuery";
-import { api } from "@/lib/api";
+import { filtersQuery, goalsQuery } from "@/lib/queries";
 import { PageFrame } from "./PageFrame";
 
-export function BudgetsPage() {
-  return <PageFrame>{(customerId) => <Budgets cid={customerId ?? ""} enabled={customerId !== null} />}</PageFrame>;
-}
-
-function Budgets({ cid, enabled }: { cid: string; enabled: boolean }) {
-  const filters = useQuery(`filters:${cid}`, (s) => api.filters(cid, s), { enabled });
-  const goals = useQuery(`goals:${cid}`, (s) => api.goals(cid, s), { enabled });
+export function BudgetsPage({ customerId }: { customerId: string }) {
+  const filters = useQuery(filtersQuery(customerId));
+  const goals = useQuery(goalsQuery(customerId));
   return (
-    <>
+    <PageFrame>
       <PageHeader title="Budgets" description="Monthly spending limits per category, with a status that is never colour alone." />
       <div className="max-w-2xl">
-        <GoalsPanel data={goals.data} categories={filters.data?.categories} loading={goals.loading} error={goals.error} onRetry={goals.refetch} />
+        <GoalsPanel
+          data={goals.data}
+          categories={filters.data?.categories}
+          loading={goals.isFetching && !!goals.data}
+          error={goals.error}
+          onRetry={goals.refetch}
+        />
       </div>
-    </>
+    </PageFrame>
   );
 }

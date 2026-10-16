@@ -1,57 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { CategoryBreakdown } from "@/components/categories/CategoryBreakdown";
 import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { PeriodSelector } from "@/components/dashboard/PeriodSelector";
 import { PageHeader } from "@/components/ui";
-import { useDashboard } from "@/context/DashboardContext";
-import { useQuery } from "@/hooks/useQuery";
-import { api } from "@/lib/api";
-import type { DateRangeValue, Period } from "@/lib/types";
+import { useUrlState } from "@/hooks/useUrlState";
+import { categoriesQuery, filtersQuery } from "@/lib/queries";
 import { PageFrame } from "./PageFrame";
 
-export function CategoriesPage() {
-  const { period, setPeriod } = useDashboard();
-  const [range, setRange] = useState<DateRangeValue | null>(null);
+export function CategoriesPage({ customerId }: { customerId: string }) {
+  const { period, setPeriod, range, setRange } = useUrlState();
+  const filters = useQuery(filtersQuery(customerId));
+  const query = range ? { ...range } : { period };
+  const categories = useQuery({ ...categoriesQuery(customerId, query), placeholderData: keepPreviousData });
+  const rangeKey = range ? `${range.startDate}:${range.endDate}` : "none";
+
   return (
     <PageFrame>
-      {(customerId) => (
-        <Categories cid={customerId ?? ""} enabled={customerId !== null} period={period} setPeriod={setPeriod} range={range} setRange={setRange} />
-      )}
-    </PageFrame>
-  );
-}
-
-interface Props {
-  cid: string;
-  enabled: boolean;
-  period: Period;
-  setPeriod: (p: Period) => void;
-  range: DateRangeValue | null;
-  setRange: (r: DateRangeValue | null) => void;
-}
-
-function Categories({ cid, enabled, period, setPeriod, range, setRange }: Props) {
-  const filters = useQuery(`filters:${cid}`, (s) => api.filters(cid, s), { enabled });
-  const query = range ? { ...range } : { period };
-  const categories = useQuery(`categories:${cid}:${JSON.stringify(query)}`, (s) => api.categories(cid, query, s), { enabled });
-
-  // Choosing a preset drops any custom range so the two controls never disagree.
-  const choosePeriod = (p: Period) => {
-    setRange(null);
-    setPeriod(p);
-  };
-
-  return (
-    <>
       <PageHeader title="Categories" description="Where the money went in the selected window." />
       <div className="flex flex-wrap items-center gap-3">
-        <PeriodSelector value={period} onChange={choosePeriod} presets={filters.data?.dateRangePresets} />
+        {/* Choosing a preset clears any custom range (see useUrlState) so the two never disagree. */}
+        <PeriodSelector value={period} onChange={setPeriod} presets={filters.data?.dateRangePresets} />
         <span className="text-sm text-ink-muted">or</span>
-        <DateRangePicker key={range ? `${range.startDate}:${range.endDate}` : "none"} value={range} onChange={setRange} />
+        <DateRangePicker key={rangeKey} value={range} onChange={setRange} />
       </div>
-      <CategoryBreakdown data={categories.data} loading={categories.loading} error={categories.error} onRetry={categories.refetch} />
-    </>
+      <CategoryBreakdown
+        data={categories.data}
+        loading={categories.isPlaceholderData}
+        error={categories.error}
+        onRetry={categories.refetch}
+      />
+    </PageFrame>
   );
 }

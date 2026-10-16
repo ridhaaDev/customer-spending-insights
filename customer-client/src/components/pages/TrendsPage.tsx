@@ -1,43 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { TrendsChart } from "@/components/trends/TrendsChart";
 import { PageHeader, SegmentedControl, type SegmentOption } from "@/components/ui";
-import { useQuery } from "@/hooks/useQuery";
-import { api } from "@/lib/api";
+import { useUrlState } from "@/hooks/useUrlState";
+import { MONTH_CHOICES, type MonthsChoice } from "@/lib/params";
+import { trendsQuery } from "@/lib/queries";
 import { PageFrame } from "./PageFrame";
 
-type MonthsChoice = "6" | "12" | "24";
+const MONTH_OPTIONS: SegmentOption<`${MonthsChoice}`>[] = MONTH_CHOICES.map((m) => ({ label: `${m} months`, value: `${m}` }));
 
-const MONTH_OPTIONS: SegmentOption<MonthsChoice>[] = [
-  { label: "6 months", value: "6" },
-  { label: "12 months", value: "12" },
-  { label: "24 months", value: "24" },
-];
-
-export function TrendsPage() {
-  const [months, setMonths] = useState<MonthsChoice>("12");
-  return <PageFrame>{(customerId) => <Trends cid={customerId ?? ""} enabled={customerId !== null} months={months} setMonths={setMonths} />}</PageFrame>;
-}
-
-interface Props {
-  cid: string;
-  enabled: boolean;
-  months: MonthsChoice;
-  setMonths: (m: MonthsChoice) => void;
-}
-
-function Trends({ cid, enabled, months, setMonths }: Props) {
-  const count = Number(months);
-  const trends = useQuery(`trends:${cid}:${count}`, (s) => api.trends(cid, count, s), { enabled });
+export function TrendsPage({ customerId }: { customerId: string }) {
+  const { months, setMonths } = useUrlState();
+  const trends = useQuery({ ...trendsQuery(customerId, months), placeholderData: keepPreviousData });
   return (
-    <>
+    <PageFrame>
       <PageHeader
         title="Trends"
         description="Total spend per calendar month."
-        action={<SegmentedControl label="Months" options={MONTH_OPTIONS} value={months} onChange={setMonths} />}
+        action={
+          <SegmentedControl
+            label="Months"
+            options={MONTH_OPTIONS}
+            value={`${months}`}
+            onChange={(v) => setMonths(Number(v) as MonthsChoice)}
+          />
+        }
       />
-      <TrendsChart data={trends.data} months={count} loading={trends.loading} error={trends.error} onRetry={trends.refetch} />
-    </>
+      <TrendsChart data={trends.data} months={months} loading={trends.isPlaceholderData} error={trends.error} onRetry={trends.refetch} />
+    </PageFrame>
   );
 }

@@ -11,8 +11,10 @@ import type {
   TransactionPage,
 } from "./types";
 
-// Base URL of the customer-api. Baked in at build time from NEXT_PUBLIC_API_URL.
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+// In the browser the URL is baked in at build time; on the server (Next's Node runtime) API_URL
+// can point at an internal address, e.g. http://api:8000 inside compose.
+const PUBLIC_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+export const API_URL = (typeof window === "undefined" ? (process.env.API_URL ?? PUBLIC_URL) : PUBLIC_URL).replace(/\/$/, "");
 
 export class ApiError extends Error {
   constructor(
@@ -38,7 +40,7 @@ export function buildUrl(path: string, params: Params = {}): string {
 async function request<T>(path: string, params: Params = {}, signal?: AbortSignal): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(buildUrl(path, params), { signal, headers: { Accept: "application/json" } });
+    res = await fetch(buildUrl(path, params), { signal, headers: { Accept: "application/json" }, cache: "no-store" });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
     throw new ApiError(0, "Could not reach the API");
@@ -70,6 +72,12 @@ export interface TransactionQuery {
   sortBy?: SortBy;
 }
 
+export interface CategoriesQuery {
+  period?: Period;
+  startDate?: string;
+  endDate?: string;
+}
+
 export const api = {
   health: (signal?: AbortSignal) => request<{ status: string }>("/health", {}, signal),
 
@@ -82,7 +90,7 @@ export const api = {
     request<SpendingSummary>(`/api/customers/${encodeURIComponent(customerId)}/spending/summary`, { period }, signal),
 
   // Either a preset period or a custom inclusive range; the API gives the range precedence.
-  categories: (customerId: string, query: { period?: Period; startDate?: string; endDate?: string }, signal?: AbortSignal) =>
+  categories: (customerId: string, query: CategoriesQuery, signal?: AbortSignal) =>
     request<SpendingByCategory>(`/api/customers/${encodeURIComponent(customerId)}/spending/categories`, { ...query }, signal),
 
   trends: (customerId: string, months: number, signal?: AbortSignal) =>

@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 import { AppShell } from "@/components/nav/AppShell";
+import { navItemsFor } from "@/components/nav/SideNav";
+import { ThemeMenu } from "@/components/nav/ThemeMenu";
 import { customers } from "@/test/fixtures";
 
 const meta = {
@@ -10,7 +12,9 @@ const meta = {
     customers,
     currentId: customers[0].customerId,
     onSwitch: fn(),
-    activeHref: "/",
+    items: navItemsFor(customers[0].customerId),
+    activeHref: "/customers/10001",
+    tools: <ThemeMenu value="system" onChange={fn()} />,
     children: (
       <div className="p-6">
         <div className="h-96 rounded-xl border border-dashed border-line-strong p-4 text-sm text-ink-muted">Page content</div>
@@ -25,7 +29,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Desktop: Story = {};
 
-export const TrendsActive: Story = { args: { activeHref: "/trends" } };
+export const TrendsActive: Story = { args: { activeHref: "/customers/10001/trends" } };
 
 export const Phone: Story = {
   parameters: { viewport: { defaultViewport: "mobile1" } },

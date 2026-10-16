@@ -1,38 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { TransactionsPanel } from "@/components/transactions/TransactionsPanel";
 import { PageHeader } from "@/components/ui";
-import { useQuery } from "@/hooks/useQuery";
-import { api } from "@/lib/api";
-import type { DateRangeValue } from "@/lib/types";
+import { useUrlState } from "@/hooks/useUrlState";
+import { filtersQuery } from "@/lib/queries";
 import { PageFrame } from "./PageFrame";
 
-export function TransactionsPage() {
-  const [range, setRange] = useState<DateRangeValue | null>(null);
-  return (
-    <PageFrame>
-      {(customerId) => <Transactions cid={customerId ?? ""} enabled={customerId !== null} range={range} setRange={setRange} />}
-    </PageFrame>
-  );
-}
-
-interface Props {
-  cid: string;
-  enabled: boolean;
-  range: DateRangeValue | null;
-  setRange: (r: DateRangeValue | null) => void;
-}
-
-function Transactions({ cid, enabled, range, setRange }: Props) {
-  const filters = useQuery(`filters:${cid}`, (s) => api.filters(cid, s), { enabled });
+export function TransactionsPage({ customerId }: { customerId: string }) {
+  const { range, setRange } = useUrlState();
+  const filters = useQuery(filtersQuery(customerId));
   const rangeKey = range ? `${range.startDate}:${range.endDate}` : "all";
   return (
-    <>
+    <PageFrame>
       <PageHeader title="Transactions" description="Every transaction, filterable by category and date." />
       <DateRangePicker key={rangeKey} value={range} onChange={setRange} />
-      {enabled && <TransactionsPanel key={`${cid}:${rangeKey}`} customerId={cid} categories={filters.data?.categories} dateRange={range} />}
-    </>
+      <TransactionsPanel key={`${customerId}:${rangeKey}`} customerId={customerId} categories={filters.data?.categories} dateRange={range} />
+    </PageFrame>
   );
 }
