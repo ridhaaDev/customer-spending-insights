@@ -59,8 +59,8 @@ page and `experimental.staleTimes` lets recently visited pages render from the r
 
 ## Themes
 
-The theme menu in the top bar offers System, Light, Dark and Candy (a lavender-to-pink gradient
-with purple ink). The choice is kept in `localStorage` and applied to `<html data-theme>` by an
+The theme menu in the top bar offers System, Light (a soft blue gradient with navy ink), Dark and
+Candy (a lavender-to-pink gradient with purple ink). The choice is kept in `localStorage` and applied to `<html data-theme>` by an
 inline script before first paint, so there is no flash. Every theme is a set of CSS custom
 properties in `globals.css`; components only ever reference the role tokens, and each theme is
 checked for AA contrast.

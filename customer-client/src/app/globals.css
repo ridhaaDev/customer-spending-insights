@@ -1,16 +1,17 @@
 @import "tailwindcss";
 
 /* Design tokens. Components reference roles (surface, card, ink…) so themes swap in one place. */
-/* Muted ink is set so it clears 4.5:1 on the page surface, not just on white cards. */
+/* Muted ink is set so it clears 4.5:1 on the lightest part of the page gradient, not just on white cards. */
 :root {
   color-scheme: light;
-  --surface: #f4f5f7;
+  /* Light: a soft blue gradient page with blue-tinted cards, lines and ink. */
+  --surface: #eef3fa;
   --card: #ffffff;
-  --line: #e6e8ec;
-  --line-strong: #cfd3da;
-  --ink: #111827;
-  --ink-secondary: #4b5563;
-  --ink-muted: #5f6672;
+  --line: #d9e2ef;
+  --line-strong: #bccbe0;
+  --ink: #0f1f3d;
+  --ink-secondary: #3d4f6b;
+  --ink-muted: #536480;
   --accent: #2a78d6;
   --accent-soft: #9ec5f4;
   --accent-soft-ink: #0b1a33;
@@ -18,7 +19,7 @@
   --status-good: #0ca30c;
   --status-warning: #fab219;
   --status-critical: #d03b3b;
-  --page-background: var(--surface);
+  --page-background: linear-gradient(135deg, #e6eefb 0%, #f2f6fc 45%, #e4ecfa 100%);
 }
 
 /* Dark follows the OS unless data-theme forces a choice (the theme menu and Storybook set it). */
