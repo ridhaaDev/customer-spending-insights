@@ -19,6 +19,7 @@
   --status-good: #0ca30c;
   --status-warning: #fab219;
   --status-critical: #d03b3b;
+  --status-critical-ink: #b02a2a; /* for small text on a critical tint: 5.3:1 on the pill */
   --page-background: linear-gradient(135deg, #e6eefb 0%, #f2f6fc 45%, #e4ecfa 100%);
 }
 
@@ -38,6 +39,7 @@
     --accent-soft-ink: #0b1a33;
     --accent-ink: #5598e7;
     --status-critical: #f0706e; /* 5.9:1 on the dark card; the light red is 3.6:1 */
+    --status-critical-ink: #f0706e;
     --page-background: var(--surface);
   }
 }
@@ -56,6 +58,7 @@
   --accent-soft-ink: #0b1a33;
   --accent-ink: #5598e7;
   --status-critical: #f0706e;
+  --status-critical-ink: #f0706e;
   --page-background: var(--surface);
 }
 
@@ -91,6 +94,7 @@
   --color-good: var(--status-good);
   --color-warning: var(--status-warning);
   --color-critical: var(--status-critical);
+  --color-critical-ink: var(--status-critical-ink);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

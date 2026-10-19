@@ -5,7 +5,14 @@ const meta = {
   title: "Atoms/DeltaBadge",
   component: DeltaBadge,
   args: { value: 18.1 },
-  decorators: [(Story) => <div className="text-xs">{Story()}</div>],
+  // Shown the way StatTile uses it: inside a muted footnote.
+  decorators: [
+    (Story) => (
+      <p className="text-xs text-ink-muted">
+        {Story()} vs previous 30 days
+      </p>
+    ),
+  ],
 } satisfies Meta<typeof DeltaBadge>;
 
 export default meta;
