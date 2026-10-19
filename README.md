@@ -1,9 +1,18 @@
 # Customer Spending Insights
 
+[![CI](https://github.com/ridhaaDev/customer-spending-insights/actions/workflows/ci.yml/badge.svg)](https://github.com/ridhaaDev/customer-spending-insights/actions/workflows/ci.yml)
+
 A responsive financial analytics dashboard showing a customer's spending, backed by an API that
 serves realistic mocked transaction history.
 
-![Overview page in the light theme: headline stats, period selector and recent transactions](docs/overview-light.png)
+![Overview page in the light theme: headline stats, period selector, budgets and recent transactions](docs/overview-light.png)
+
+<details>
+<summary>Trends page: four views with a one-sentence reading each</summary>
+
+![Trends page in the light theme: monthly spending, spend by category, average transaction and spend by weekday](docs/trends-light.png)
+
+</details>
 
 <details>
 <summary>Categories page in the dark theme</summary>
@@ -54,14 +63,27 @@ The dashboard reads the API base URL from `NEXT_PUBLIC_API_URL` (default `http:/
 ## Testing
 
 ```sh
-cd customer-api   && poetry run pytest && poetry run ruff check . && poetry run ruff format --check .
+cd customer-api    && poetry run pytest && poetry run ruff check . && poetry run ruff format --check .
 cd customer-client && npm test && npm run lint && npm run typecheck
+cd customer-client && npm run e2e          # browser suite; starts the API, a production build and Storybook itself
 ```
 
-- API: unit tests for the analytics functions and contract tests for every endpoint against the
-  seeded dataset with a pinned date.
-- Client: unit tests for formatting, the API client (mocked `fetch`), the data-fetching hook, and a
-  component test.
+Three layers, all run by CI on every push and pull request:
+
+- **API (pytest)**: unit tests for the analytics functions and contract tests for every endpoint
+  against the seeded dataset with a pinned date, including validation and conflict responses.
+- **Client (Vitest + Testing Library)**: formatting, the API client (mocked `fetch`), URL-state
+  parsing, the insight sentences and quarter bucketing, a component test, and an axe pass over the
+  main components in jsdom.
+- **End-to-end (Playwright)**: Chromium against the real API and the production build served the
+  way the Docker image serves it, with `MOCK_TODAY` pinned so every assertion is reproducible.
+  Covers navigation and profile switching, the period and date-range filters, adding a
+  transaction and a budget through the modals, the trends controls, theme persistence, the phone
+  layout, API contracts, every Storybook play function, and a real-browser axe pass (including
+  colour contrast) over every route in light and dark. `npm run e2e:ui` opens the inspector.
+
+CI (`.github/workflows/ci.yml`) runs the API and client jobs in parallel, then the end-to-end
+suite and a build of both production Docker images.
 
 ## Production builds
 
