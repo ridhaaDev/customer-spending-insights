@@ -26,3 +26,8 @@ export const SingleRow: Story = { args: { transactions: transactions.slice(0, 1)
 export const Narrow: Story = {
   parameters: { viewport: { defaultViewport: "mobile1" } },
 };
+
+export const Compact: Story = {
+  args: { compact: true },
+  decorators: [(Story) => <div className="w-[34rem] max-w-full rounded-xl border border-line bg-card p-5">{Story()}</div>],
+};

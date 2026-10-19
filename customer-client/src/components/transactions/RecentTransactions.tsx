@@ -47,7 +47,7 @@ export function RecentTransactions({ customerId, categories, paymentMethods }: P
         <EmptyState message="No transactions yet." />
       ) : (
         <Refreshing loading={isFetching && !!data}>
-          <TransactionTable transactions={data.transactions} />
+          <TransactionTable transactions={data.transactions} compact />
         </Refreshing>
       )}
     </Card>
