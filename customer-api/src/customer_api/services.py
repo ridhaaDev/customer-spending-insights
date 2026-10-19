@@ -127,8 +127,8 @@ class MonthTotal:
         return _average(self.total_cents, self.transaction_count)
 
 
-def monthly_trends(transactions: list[Transaction], months: int, today: date) -> list[MonthTotal]:
-    """The last `months` calendar months including the current one, oldest first, zero-filled."""
+def _month_keys(months: int, today: date) -> list[tuple[int, int]]:
+    """(year, month) for the last `months` calendar months including the current one, oldest first."""
     keys: list[tuple[int, int]] = []
     year, month = today.year, today.month
     for _ in range(months):
@@ -137,6 +137,12 @@ def monthly_trends(transactions: list[Transaction], months: int, today: date) ->
         if month == 0:
             year, month = year - 1, 12
     keys.reverse()
+    return keys
+
+
+def monthly_trends(transactions: list[Transaction], months: int, today: date) -> list[MonthTotal]:
+    """The last `months` calendar months including the current one, oldest first, zero-filled."""
+    keys = _month_keys(months, today)
 
     totals: dict[tuple[int, int], int] = defaultdict(int)
     counts: dict[tuple[int, int], int] = defaultdict(int)
@@ -147,6 +153,61 @@ def monthly_trends(transactions: list[Transaction], months: int, today: date) ->
             totals[(d.year, d.month)] += t.amount_cents
             counts[(d.year, d.month)] += 1
     return [MonthTotal(month=f"{y:04d}-{m:02d}", total_cents=totals[(y, m)], transaction_count=counts[(y, m)]) for y, m in keys]
+
+
+@dataclass(frozen=True, slots=True)
+class MonthCategoryTotals:
+    month: str  # YYYY-MM
+    total_cents: int
+    by_category: dict[str, int]  # category -> cents, only categories with spend that month
+
+
+def monthly_trends_by_category(transactions: list[Transaction], months: int, today: date) -> list[MonthCategoryTotals]:
+    """Monthly totals split by category, oldest first, zero-filled months."""
+    keys = _month_keys(months, today)
+    per_month: dict[tuple[int, int], dict[str, int]] = {k: defaultdict(int) for k in keys}
+    earliest = date(keys[0][0], keys[0][1], 1)
+    for t in transactions:
+        d = t.occurred_on
+        if d >= earliest and (d.year, d.month) in per_month:
+            per_month[(d.year, d.month)][t.category] += t.amount_cents
+    return [
+        MonthCategoryTotals(
+            month=f"{y:04d}-{m:02d}", total_cents=sum(per_month[(y, m)].values()), by_category=dict(per_month[(y, m)])
+        )
+        for y, m in keys
+    ]
+
+
+WEEKDAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+
+@dataclass(frozen=True, slots=True)
+class WeekdayTotal:
+    weekday: str
+    total_cents: int
+    transaction_count: int
+    # How many of that weekday fall inside the window; 0 only for a window shorter than a week.
+    days: int
+
+    @property
+    def average_per_day(self) -> float:
+        return cents_to_amount(round(self.total_cents / self.days)) if self.days else 0.0
+
+
+def weekday_totals(transactions: list[Transaction], window: DateRange) -> list[WeekdayTotal]:
+    """Spend per weekday over the window, Monday first, with the average per occurrence of that day."""
+    totals = [0] * 7
+    counts = [0] * 7
+    for t in in_range(transactions, window):
+        wd = t.occurred_on.weekday()
+        totals[wd] += t.amount_cents
+        counts[wd] += 1
+    full_weeks, rest = divmod(window.days, 7)
+    days = [full_weeks] * 7
+    for i in range(rest):
+        days[(window.start.weekday() + i) % 7] += 1
+    return [WeekdayTotal(weekday=WEEKDAYS[i], total_cents=totals[i], transaction_count=counts[i], days=days[i]) for i in range(7)]
 
 
 _SORTERS = {

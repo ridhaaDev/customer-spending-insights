@@ -32,6 +32,18 @@ export const trendsQuery = (customerId: string, months: number) =>
     queryFn: ({ signal }) => api.trends(customerId, months, signal),
   });
 
+export const categoryTrendsQuery = (customerId: string, months: number) =>
+  queryOptions({
+    queryKey: ["customer", customerId, "trends", "categories", months],
+    queryFn: ({ signal }) => api.categoryTrends(customerId, months, signal),
+  });
+
+export const weekdaySpendingQuery = (customerId: string, months: number) =>
+  queryOptions({
+    queryKey: ["customer", customerId, "weekdays", months],
+    queryFn: ({ signal }) => api.weekdaySpending(customerId, months, signal),
+  });
+
 export const goalsQuery = (customerId: string) =>
   queryOptions({ queryKey: ["customer", customerId, "goals"], queryFn: ({ signal }) => api.goals(customerId, signal) });
 

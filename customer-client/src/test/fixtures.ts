@@ -2,6 +2,7 @@
 import type {
   CategoryFilter,
   CategorySpend,
+  CategoryTrends,
   CustomerProfile,
   CustomerSummary,
   Goal,
@@ -9,6 +10,7 @@ import type {
   SpendingByCategory,
   SpendingSummary,
   Transaction,
+  WeekdaySpending,
 } from "@/lib/types";
 
 export const categoryFilters: CategoryFilter[] = [
@@ -83,6 +85,41 @@ export const trends: MonthTrend[] = [
   transactionCount: transactionCount as number,
   averageTransaction: Math.round(((totalSpent as number) / (transactionCount as number)) * 100) / 100,
 }));
+
+// Each month's total split across the six categories with slightly drifting shares.
+const SHARES = [0.36, 0.09, 0.14, 0.13, 0.18, 0.1];
+export const categoryTrends: CategoryTrends = {
+  trends: trends.map((t, i) => {
+    const categories: Record<string, number> = {};
+    let allocated = 0;
+    categoryFilters.forEach((c, j) => {
+      const drift = 1 + (((i + j) % 5) - 2) * 0.03;
+      const amount = j === categoryFilters.length - 1 ? t.totalSpent - allocated : Math.round(t.totalSpent * SHARES[j] * drift * 100) / 100;
+      categories[c.name] = Math.round(amount * 100) / 100;
+      allocated += categories[c.name];
+    });
+    return { month: t.month, totalSpent: t.totalSpent, categories };
+  }),
+  categories: [...categoryFilters].sort((a, b) => SHARES[categoryFilters.indexOf(b)] - SHARES[categoryFilters.indexOf(a)]),
+};
+
+export const weekdaySpending: WeekdaySpending = {
+  dateRange: { startDate: "2025-11-01", endDate: "2026-10-16" },
+  weekdays: [
+    ["Monday", 31240.5, 68],
+    ["Tuesday", 28110.2, 61],
+    ["Wednesday", 29870.0, 64],
+    ["Thursday", 30420.8, 66],
+    ["Friday", 41980.3, 92],
+    ["Saturday", 48210.6, 104],
+    ["Sunday", 36015.4, 75],
+  ].map(([weekday, totalSpent, transactionCount], i) => ({
+    weekday: weekday as string,
+    totalSpent: totalSpent as number,
+    transactionCount: transactionCount as number,
+    averagePerDay: Math.round(((totalSpent as number) / (i < 4 ? 51 : 50)) * 100) / 100,
+  })),
+};
 
 export const goals: Goal[] = [
   { id: "goal_001", category: "Groceries", monthlyBudget: 8800, currentSpent: 6024.1, percentageUsed: 68.46, daysRemaining: 22, status: "on_track" },

@@ -87,6 +87,8 @@ The API also ships an AWS Lambda entrypoint and SAM template; see [customer-api/
 | `/api/customers/{id}/spending/summary?period=` | Total, count, average, top category, change vs the previous period |
 | `/api/customers/{id}/spending/categories?period=&startDate=&endDate=` | Spend per category with share, colour and icon |
 | `/api/customers/{id}/spending/trends?months=` | Monthly totals, zero-filled, oldest first |
+| `/api/customers/{id}/spending/trends/categories?months=` | Monthly totals split by category, with each category's colour and icon |
+| `/api/customers/{id}/spending/weekdays?months=` | Spend per day of the week over the same window, averaged per occurrence |
 | `/api/customers/{id}/transactions?limit=&offset=&category=&startDate=&endDate=&sortBy=` | Paginated, filterable, sortable transactions |
 | `POST /api/customers/{id}/transactions` | Records a transaction in memory (merchant, category, amount, date, description, payment method); 201 with the created record |
 | `/api/customers/{id}/goals` | Month-to-date spend against monthly budgets |

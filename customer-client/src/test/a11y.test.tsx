@@ -14,12 +14,16 @@ import { Pagination } from "@/components/transactions/Pagination";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { TransactionTable } from "@/components/transactions/TransactionTable";
+import { CategoryTrendTable } from "@/components/trends/CategoryTrendTable";
+import { ChartLegend } from "@/components/trends/ChartLegend";
 import { TrendsTable } from "@/components/trends/TrendsTable";
+import { WeekdayTable } from "@/components/trends/WeekdayTable";
 import { Card, ErrorState, Modal, PageHeader } from "@/components/ui";
 import {
   categoryColors,
   categoryFilters,
   categoryIcons,
+  categoryTrends,
   goals,
   paymentMethods,
   profile,
@@ -27,6 +31,7 @@ import {
   summary,
   transactions,
   trends,
+  weekdaySpending,
 } from "@/test/fixtures";
 
 // jsdom has no layout engine, so contrast is checked in the browser (Storybook a11y addon, axe over CDP).
@@ -44,6 +49,13 @@ const cases: Record<string, () => React.ReactElement> = {
     </>
   ),
   TrendsTable: () => <TrendsTable trends={trends} />,
+  TrendTables: () => (
+    <>
+      <CategoryTrendTable data={categoryTrends} />
+      <ChartLegend series={categoryTrends.categories} />
+      <WeekdayTable weekdays={weekdaySpending.weekdays} />
+    </>
+  ),
   Transactions: () => (
     <Card>
       <TransactionFilters categories={categoryFilters} category="" sortBy="date_desc" onCategoryChange={noop} onSortChange={noop} />

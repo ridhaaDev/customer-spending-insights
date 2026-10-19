@@ -14,6 +14,8 @@ import type {
   SpendingByCategory,
   SpendingSummary,
   SpendingTrends,
+  CategoryTrends,
+  WeekdaySpending,
   TransactionPage,
 } from "./types";
 
@@ -130,6 +132,10 @@ export const api = {
 
   trends: (customerId: string, months: number, signal?: AbortSignal) =>
     request<SpendingTrends>(`/api/customers/${encodeURIComponent(customerId)}/spending/trends`, { months }, { signal }),
+  categoryTrends: (customerId: string, months: number, signal?: AbortSignal) =>
+    request<CategoryTrends>(`/api/customers/${encodeURIComponent(customerId)}/spending/trends/categories`, { months }, { signal }),
+  weekdaySpending: (customerId: string, months: number, signal?: AbortSignal) =>
+    request<WeekdaySpending>(`/api/customers/${encodeURIComponent(customerId)}/spending/weekdays`, { months }, { signal }),
 
   transactions: (customerId: string, query: TransactionQuery, signal?: AbortSignal) =>
     request<TransactionPage>(`/api/customers/${encodeURIComponent(customerId)}/transactions`, { ...query }, { signal }),

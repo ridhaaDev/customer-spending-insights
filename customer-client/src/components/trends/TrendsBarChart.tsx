@@ -1,8 +1,9 @@
 "use client";
 
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { formatMonth, formatZAR } from "@/lib/format";
+import { formatMonth } from "@/lib/format";
 import type { MonthTrend } from "@/lib/types";
+import { tooltipCursor, xAxisProps, yAxisProps } from "./chart-axes";
 import { PeakLabel } from "./PeakLabel";
 import { TrendTooltip } from "./TrendTooltip";
 
@@ -20,23 +21,9 @@ export function TrendsBarChart({ trends, label }: Props) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={trends} margin={{ top: 20, right: 4, bottom: 0, left: 4 }} barCategoryGap="35%">
             <CartesianGrid vertical={false} stroke="var(--line)" />
-            <XAxis
-              dataKey="month"
-              tickFormatter={(m: string) => formatMonth(m)}
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: "var(--ink-muted)", fontSize: 12 }}
-              interval="preserveStartEnd"
-              minTickGap={12}
-            />
-            <YAxis
-              tickFormatter={(v: number) => formatZAR(v, { compact: true })}
-              axisLine={false}
-              tickLine={false}
-              width={56}
-              tick={{ fill: "var(--ink-muted)", fontSize: 12 }}
-            />
-            <Tooltip cursor={{ fill: "var(--line)", fillOpacity: 0.5 }} content={<TrendTooltip currentMonth={currentMonth} />} />
+            <XAxis dataKey="month" tickFormatter={(m: string) => formatMonth(m)} {...xAxisProps} />
+            <YAxis {...yAxisProps} />
+            <Tooltip cursor={tooltipCursor} content={<TrendTooltip currentMonth={currentMonth} />} />
             <Bar dataKey="totalSpent" fill="var(--accent)" radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false}>
               {trends.map((t) => (
                 // The in-progress month is lighter so it isn't read as a drop.

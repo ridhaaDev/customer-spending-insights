@@ -36,7 +36,7 @@ npm run storybook    # http://localhost:6006, component catalogue with a theme t
 | `/` | Redirects to the first customer |
 | `/customers/{id}` | Customer header, period selector, headline stats, then monthly budgets beside recent transactions, each with its Add button |
 | `/customers/{id}/categories` | Spend by category for a preset period or a custom date range |
-| `/customers/{id}/trends` | Monthly totals for the last 6, 12 or 24 months, chart or table |
+| `/customers/{id}/trends` | Four views over the last 6, 12 or 24 months: monthly totals, spend by category, average transaction and spend by weekday; each chart has a table twin |
 | `/customers/{id}/budgets` | Amount left this month across all budgets, and month-to-date spend against each |
 | `/customers/{id}/transactions` | Full list with category, sort, date range and paging |
 
@@ -108,7 +108,7 @@ src/
     dashboard/      DashboardHeader, PeriodSelector, DateRangeControl (relative presets + calendar popover)
     summary/        SummaryCards, StatTile, DeltaBadge
     categories/     CategoryBreakdown, ShareBar, CategoryRow, CategoryForm, AddCategoryDialog
-    trends/         TrendsChart, TrendsBarChart, TrendsTable, TrendTooltip, PeakLabel
+    trends/         TrendCard, TrendsChart, TrendsBarChart, CategoryTrendChart, AverageTrendChart, WeekdayChart, table twins, tooltips
     goals/          GoalsPanel, GoalRow, GoalMeter, StatusBadge, BudgetSummaryCard, GoalForm, AddBudgetDialog
     transactions/   TransactionsPanel, RecentTransactions, AddTransactionDialog (query-connected), TransactionForm, TransactionTable, TransactionFilters, Pagination
   stories/          Storybook catalogue by atomic level: atoms, molecules, organisms, templates

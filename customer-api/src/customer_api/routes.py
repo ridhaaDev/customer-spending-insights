@@ -22,6 +22,7 @@ from customer_api.schemas import (
     CategoryCreate,
     CategoryFilter,
     CategorySpend,
+    CategoryTrends,
     CustomerList,
     CustomerProfile,
     CustomerSummary,
@@ -31,6 +32,7 @@ from customer_api.schemas import (
     GoalCreate,
     GoalList,
     GoalOut,
+    MonthCategoryTrend,
     MonthTrend,
     Pagination,
     PeriodComparison,
@@ -40,6 +42,8 @@ from customer_api.schemas import (
     TransactionCreate,
     TransactionOut,
     TransactionPage,
+    WeekdaySpend,
+    WeekdaySpending,
 )
 
 router = APIRouter(prefix="/api/customers", tags=["customers"])
@@ -171,6 +175,51 @@ def spending_trends(
             )
             for r in rows
         ]
+    )
+
+
+MonthsQuery = Annotated[int, Query(ge=1, le=24, description="Calendar months to include, ending with the current month.")]
+
+
+@router.get("/{customer_id}/spending/trends/categories", summary="Monthly spend split by category")
+def spending_trends_by_category(customer: CurrentCustomer, repo: Repo, today: Today, months: MonthsQuery = 12) -> CategoryTrends:
+    rows = services.monthly_trends_by_category(repo.transactions_for(customer.id), months, today)
+    meta = repo.categories_for(customer.id)
+    window_totals: dict[str, int] = {}
+    for r in rows:
+        for name, cents in r.by_category.items():
+            window_totals[name] = window_totals.get(name, 0) + cents
+    ordered = sorted(window_totals, key=lambda n: window_totals[n], reverse=True)
+    return CategoryTrends(
+        trends=[
+            MonthCategoryTrend(
+                month=r.month,
+                total_spent=cents_to_amount(r.total_cents),
+                categories={name: cents_to_amount(cents) for name, cents in r.by_category.items()},
+            )
+            for r in rows
+        ],
+        categories=[CategoryFilter(name=n, color=_meta(meta, n).color, icon=_meta(meta, n).icon) for n in ordered],
+    )
+
+
+@router.get("/{customer_id}/spending/weekdays", summary="Spend per weekday over the last months")
+def spending_by_weekday(customer: CurrentCustomer, repo: Repo, today: Today, months: MonthsQuery = 12) -> WeekdaySpending:
+    # The same calendar window as the trends: from the first day of the oldest month to today.
+    first = services.monthly_trends([], months, today)[0].month
+    window = services.DateRange(start=date(int(first[:4]), int(first[5:7]), 1), end=today)
+    rows = services.weekday_totals(repo.transactions_for(customer.id), window)
+    return WeekdaySpending(
+        date_range=DateRangeOut(start_date=window.start, end_date=window.end),
+        weekdays=[
+            WeekdaySpend(
+                weekday=r.weekday,
+                total_spent=cents_to_amount(r.total_cents),
+                transaction_count=r.transaction_count,
+                average_per_day=r.average_per_day,
+            )
+            for r in rows
+        ],
     )
 
 

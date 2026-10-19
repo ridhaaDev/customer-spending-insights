@@ -67,6 +67,31 @@ export interface SpendingTrends {
   trends: MonthTrend[];
 }
 
+export interface MonthCategoryTrend {
+  month: string; // YYYY-MM
+  totalSpent: number;
+  // Category name -> amount; categories with no spend that month are omitted.
+  categories: Record<CategoryName, number>;
+}
+
+export interface CategoryTrends {
+  trends: MonthCategoryTrend[];
+  // Every category seen in the window, largest total first.
+  categories: CategoryFilter[];
+}
+
+export interface WeekdaySpend {
+  weekday: string; // Monday .. Sunday
+  totalSpent: number;
+  transactionCount: number;
+  averagePerDay: number;
+}
+
+export interface WeekdaySpending {
+  dateRange: DateRangeValue;
+  weekdays: WeekdaySpend[];
+}
+
 export interface Transaction {
   id: string;
   date: string; // ISO 8601

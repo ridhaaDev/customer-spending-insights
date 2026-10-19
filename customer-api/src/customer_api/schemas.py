@@ -81,6 +81,31 @@ class SpendingTrends(CamelModel):
     trends: list[MonthTrend]
 
 
+class MonthCategoryTrend(CamelModel):
+    month: str
+    total_spent: float
+    # Category name -> amount for that month; categories without spend are omitted.
+    categories: dict[str, float]
+
+
+class CategoryTrends(CamelModel):
+    trends: list[MonthCategoryTrend]
+    # Every category that appears in the window, with its presentation, largest total first.
+    categories: list[CategoryFilter]
+
+
+class WeekdaySpend(CamelModel):
+    weekday: str
+    total_spent: float
+    transaction_count: int
+    average_per_day: float
+
+
+class WeekdaySpending(CamelModel):
+    date_range: DateRangeOut
+    weekdays: list[WeekdaySpend]
+
+
 class TransactionOut(CamelModel):
     id: str
     date: datetime
