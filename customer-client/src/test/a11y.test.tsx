@@ -52,7 +52,7 @@ const cases: Record<string, () => React.ReactElement> = {
   TrendTables: () => (
     <>
       <CategoryTrendTable data={categoryTrends} />
-      <ChartLegend series={categoryTrends.categories} />
+      <ChartLegend series={categoryTrends.categories} hidden={new Set(["Dining"])} onToggle={noop} onShowAll={noop} />
       <WeekdayTable weekdays={weekdaySpending.weekdays} />
     </>
   ),

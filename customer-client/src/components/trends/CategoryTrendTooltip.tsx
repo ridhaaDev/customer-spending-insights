@@ -1,23 +1,26 @@
-import { formatMonth, formatZAR } from "@/lib/format";
+import { formatBucket, formatZAR } from "@/lib/format";
 import type { CategoryFilter } from "@/lib/types";
 import type { CategorySeriesRow } from "./category-series";
 
 interface Props {
   active?: boolean;
   payload?: ReadonlyArray<{ payload: CategorySeriesRow }>;
+  // The visible series; `allSeries` is how many exist, so the total can be labelled "Shown" when some are hidden.
   series: CategoryFilter[];
+  allSeries: number;
   currentMonth?: string;
 }
 
-export function CategoryTrendTooltip({ active, payload, series, currentMonth }: Props) {
+export function CategoryTrendTooltip({ active, payload, series, allSeries, currentMonth }: Props) {
   const row = payload?.[0]?.payload;
   if (!active || !row) return null;
   const present = series.filter((s) => (row.values[s.name] ?? 0) > 0);
+  const total = present.reduce((s, c) => s + (row.values[c.name] ?? 0), 0);
   return (
     <div className="rounded-lg border border-line bg-card px-3 py-2 text-sm shadow-sm">
       <p className="font-medium text-ink">
-        {formatMonth(row.month, "long")}
-        {row.month === currentMonth && <span className="ml-1 text-xs font-normal text-ink-muted">(month to date)</span>}
+        {formatBucket(row.month, "long")}
+        {row.month === currentMonth && <span className="ml-1 text-xs font-normal text-ink-muted">(to date)</span>}
       </p>
       <ul className="mt-1 space-y-0.5 tabular-nums">
         {present.map((s) => (
@@ -31,8 +34,8 @@ export function CategoryTrendTooltip({ active, payload, series, currentMonth }: 
         ))}
       </ul>
       <p className="mt-1 flex justify-between gap-4 border-t border-line pt-1 tabular-nums text-ink">
-        <span className="text-ink-muted">Total</span>
-        <strong className="font-semibold">{formatZAR(row.totalSpent)}</strong>
+        <span className="text-ink-muted">{series.length < allSeries ? "Shown" : "Total"}</span>
+        <strong className="font-semibold">{formatZAR(total)}</strong>
       </p>
     </div>
   );

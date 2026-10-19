@@ -44,6 +44,13 @@ export function formatMonth(yyyyMm: string, style: "short" | "long" = "short"): 
   return style === "short" ? monthShort.format(d) : monthLong.format(d);
 }
 
+/** A month key ("2024-09") or a quarter key ("2024-Q3", used when a phone collapses months into quarters). */
+export function formatBucket(key: string, style: "short" | "long" = "short"): string {
+  const q = /^(\d{4})-Q([1-4])$/.exec(key);
+  if (!q) return formatMonth(key, style);
+  return style === "short" ? `Q${q[2]} ${q[1].slice(2)}` : `Q${q[2]} ${q[1]}`;
+}
+
 // Dates display in UTC because the API buckets by UTC calendar day.
 const dateFmt = new Intl.DateTimeFormat(LOCALE, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 const dateTimeFmt = new Intl.DateTimeFormat(LOCALE, {

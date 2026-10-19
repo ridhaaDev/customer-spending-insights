@@ -3,7 +3,7 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatMonth } from "@/lib/format";
 import type { MonthTrend } from "@/lib/types";
-import { xAxisProps, yAxisProps } from "./chart-axes";
+import { CHART_HEIGHT, xAxisProps, yAxisProps } from "./chart-axes";
 import { TrendTooltip } from "./TrendTooltip";
 
 interface Props {
@@ -16,7 +16,7 @@ export function AverageTrendChart({ trends, label }: Props) {
   const currentMonth = trends.at(-1)?.month;
   return (
     <>
-      <div className="h-64 w-full" role="img" aria-label={label}>
+      <div className={CHART_HEIGHT} role="img" aria-label={label}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={trends} margin={{ top: 20, right: 8, bottom: 0, left: 4 }}>
             <CartesianGrid vertical={false} stroke="var(--line)" />

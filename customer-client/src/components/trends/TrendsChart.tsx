@@ -1,5 +1,6 @@
 "use client";
 
+import { monthlyInsight } from "@/lib/insights";
 import type { SpendingTrends } from "@/lib/types";
 import { TrendCard } from "./TrendCard";
 import { TrendsBarChart } from "./TrendsBarChart";
@@ -25,6 +26,7 @@ export function TrendsChart({ data, months, loading, error, onRetry }: Props) {
       onRetry={onRetry}
       chart={(d) => <TrendsBarChart trends={d.trends} label={`Bar chart of total spending per month for the last ${months} months`} />}
       table={(d) => <TrendsTable trends={d.trends} />}
+      insight={(d) => monthlyInsight(d.trends)}
     />
   );
 }

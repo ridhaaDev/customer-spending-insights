@@ -11,6 +11,7 @@ import { WeekdayChart } from "@/components/trends/WeekdayChart";
 import { WeekdayTable } from "@/components/trends/WeekdayTable";
 import { PageHeader, SegmentedControl, type SegmentOption } from "@/components/ui";
 import { useUrlState } from "@/hooks/useUrlState";
+import { averageInsight, categoryInsight, weekdayInsight } from "@/lib/insights";
 import { MONTH_CHOICES, type MonthsChoice } from "@/lib/params";
 import { categoryTrendsQuery, trendsQuery, weekdaySpendingQuery } from "@/lib/queries";
 import { PageFrame } from "./PageFrame";
@@ -49,6 +50,7 @@ export function TrendsPage({ customerId }: { customerId: string }) {
           onRetry={byCategory.refetch}
           chart={(d) => <CategoryTrendChart data={d} label={`Stacked bar chart of monthly spend split by category for the last ${months} months`} />}
           table={(d) => <CategoryTrendTable data={d} />}
+          insight={categoryInsight}
         />
         <TrendCard
           title="Average transaction"
@@ -60,6 +62,7 @@ export function TrendsPage({ customerId }: { customerId: string }) {
           onRetry={trends.refetch}
           chart={(d) => <AverageTrendChart trends={d.trends} label={`Line chart of the average transaction amount per month for the last ${months} months`} />}
           table={(d) => <TrendsTable trends={d.trends} />}
+          insight={(d) => averageInsight(d.trends)}
         />
         <TrendCard
           title="Spend by weekday"
@@ -71,6 +74,7 @@ export function TrendsPage({ customerId }: { customerId: string }) {
           onRetry={weekdays.refetch}
           chart={(d) => <WeekdayChart weekdays={d.weekdays} label={`Bar chart of average spend per day of the week over the last ${months} months`} />}
           table={(d) => <WeekdayTable weekdays={d.weekdays} />}
+          insight={(d) => weekdayInsight(d.weekdays)}
         />
       </div>
     </PageFrame>

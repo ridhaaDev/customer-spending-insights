@@ -5,6 +5,7 @@ import { CategoryTrendTable } from "@/components/trends/CategoryTrendTable";
 import { TrendCard } from "@/components/trends/TrendCard";
 import { WeekdayChart } from "@/components/trends/WeekdayChart";
 import { WeekdayTable } from "@/components/trends/WeekdayTable";
+import { categoryInsight, weekdayInsight } from "@/lib/insights";
 import type { CategoryTrends, WeekdaySpending } from "@/lib/types";
 import { categoryTrends, weekdaySpending } from "@/test/fixtures";
 
@@ -22,6 +23,7 @@ const meta = {
     onRetry: fn(),
     chart: (d: CategoryTrends) => <CategoryTrendChart data={d} label="Stacked bar chart of monthly spend split by category" />,
     table: (d: CategoryTrends) => <CategoryTrendTable data={d} />,
+    insight: categoryInsight,
   },
   decorators: [(Story) => <div className="w-[40rem] max-w-full">{Story()}</div>],
 } satisfies Meta<typeof TrendCard<CategoryTrends>>;
@@ -52,8 +54,20 @@ export const SpendByWeekday: StoryObj<Meta<typeof TrendCard<WeekdaySpending>>> =
       onRetry={fn()}
       chart={(d) => <WeekdayChart weekdays={d.weekdays} label="Bar chart of average spend per day of the week" />}
       table={(d) => <WeekdayTable weekdays={d.weekdays} />}
+      insight={(d) => weekdayInsight(d.weekdays)}
     />
   ),
+};
+
+export const WithoutInsight: Story = { args: { insight: undefined } };
+
+export const HiddenSeries: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Groceries" }));
+    await expect(canvas.getByRole("button", { name: "Groceries" })).toHaveAttribute("aria-pressed", "false");
+    await expect(canvas.getByRole("button", { name: "Show all" })).toBeVisible();
+  },
 };
 
 export const Refetching: Story = { args: { loading: true } };

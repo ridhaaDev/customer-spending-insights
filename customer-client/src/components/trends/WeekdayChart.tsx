@@ -2,7 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { WeekdaySpend } from "@/lib/types";
-import { tooltipCursor, xAxisProps, yAxisProps } from "./chart-axes";
+import { CHART_HEIGHT, tooltipCursor, xAxisProps, yAxisProps } from "./chart-axes";
 import { PeakLabel } from "./PeakLabel";
 import { WeekdayTooltip } from "./WeekdayTooltip";
 
@@ -16,7 +16,7 @@ export function WeekdayChart({ weekdays, label }: Props) {
   const peakIndex = weekdays.reduce((best, w, i) => (w.averagePerDay > (weekdays[best]?.averagePerDay ?? -1) ? i : best), 0);
   return (
     <>
-      <div className="h-64 w-full" role="img" aria-label={label}>
+      <div className={CHART_HEIGHT} role="img" aria-label={label}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={weekdays} margin={{ top: 20, right: 4, bottom: 0, left: 4 }} barCategoryGap="35%">
             <CartesianGrid vertical={false} stroke="var(--line)" />

@@ -1,4 +1,4 @@
-import { formatInteger, formatMonth, formatZAR } from "@/lib/format";
+import { formatBucket, formatInteger, formatZAR } from "@/lib/format";
 import type { MonthTrend } from "@/lib/types";
 
 // Recharts clones this element with `active` and `payload`; `currentMonth` is passed by us.
@@ -14,8 +14,8 @@ export function TrendTooltip({ active, payload, currentMonth }: TrendTooltipProp
   return (
     <div className="rounded-lg border border-line bg-card px-3 py-2 text-sm shadow-sm">
       <p className="font-medium text-ink">
-        {formatMonth(row.month, "long")}
-        {row.month === currentMonth && <span className="ml-1 text-xs font-normal text-ink-muted">(month to date)</span>}
+        {formatBucket(row.month, "long")}
+        {row.month === currentMonth && <span className="ml-1 text-xs font-normal text-ink-muted">(to date)</span>}
       </p>
       <p className="mt-1 tabular-nums text-ink">
         <strong className="font-semibold">{formatZAR(row.totalSpent)}</strong>

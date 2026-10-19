@@ -36,7 +36,7 @@ npm run storybook    # http://localhost:6006, component catalogue with a theme t
 | `/` | Redirects to the first customer |
 | `/customers/{id}` | Customer header, period selector, headline stats, then monthly budgets beside recent transactions, each with its Add button |
 | `/customers/{id}/categories` | Spend by category for a preset period or a custom date range |
-| `/customers/{id}/trends` | Four views over the last 6, 12 or 24 months: monthly totals, spend by category, average transaction and spend by weekday; each chart has a table twin |
+| `/customers/{id}/trends` | Four views over the last 6, 12 or 24 months: monthly totals, spend by category, average transaction and spend by weekday. Each card opens with a one-sentence reading of its data, has a table twin, and collapses to quarters on phones; legend entries isolate a category |
 | `/customers/{id}/budgets` | Amount left this month across all budgets, and month-to-date spend against each |
 | `/customers/{id}/transactions` | Full list with category, sort, date range and paging |
 
@@ -86,6 +86,8 @@ One known axe report: while a Radix `Select` list is open it marks the rest of t
 `aria-hidden`, so a static scan in that instant flags the page's links as focusable-but-hidden. The
 select's focus trap means keyboard users cannot actually reach them, and the page scans clean once
 the list closes.
+
+A second, moderate one: an open Radix `DropdownMenu` (profile and theme menus) is portalled to `<body>`, outside every landmark, so axe's best-practice `region` rule notes it. The menu itself is labelled and keyboard-operable.
 
 ## Layout
 
