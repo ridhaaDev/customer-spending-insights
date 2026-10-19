@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Card, CardHeader, EmptyState, ErrorState, Refreshing, Skeleton } from "@/components/ui";
 import type { CategoryFilter, GoalList } from "@/lib/types";
 import { GoalRow } from "./GoalRow";
@@ -8,13 +9,15 @@ interface Props {
   loading: boolean;
   error: Error | null;
   onRetry: () => void;
+  // Rendered in the card header, e.g. an Add budget button.
+  action?: ReactNode;
 }
 
-export function GoalsPanel({ data, categories, loading, error, onRetry }: Props) {
+export function GoalsPanel({ data, categories, loading, error, onRetry, action }: Props) {
   const byName = new Map(categories?.map((c) => [c.name, c]));
   return (
     <Card>
-      <CardHeader title="Monthly budgets" subtitle="Spend so far this month against each goal" />
+      <CardHeader title="Monthly budgets" subtitle="Spend so far this month against each goal" action={action} />
       {error && !data ? (
         <ErrorState message={error.message} onRetry={onRetry} />
       ) : !data ? (

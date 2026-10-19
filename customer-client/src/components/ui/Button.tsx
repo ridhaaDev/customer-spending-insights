@@ -12,7 +12,7 @@ export function Button({ size = "md", variant = "outline", className = "", type 
   return (
     <button
       type={type}
-      className={`inline-flex items-center gap-1.5 rounded-md font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-40 ${VARIANT[variant]} ${SIZE[size]} ${className}`}
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-40 ${VARIANT[variant]} ${SIZE[size]} ${className}`}
       {...props}
     />
   );

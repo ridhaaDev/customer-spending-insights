@@ -3,10 +3,12 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { PeriodSelector } from "@/components/dashboard/PeriodSelector";
+import { AddBudgetDialog } from "@/components/goals/AddBudgetDialog";
+import { GoalsPanel } from "@/components/goals/GoalsPanel";
 import { SummaryCards } from "@/components/summary/SummaryCards";
 import { RecentTransactions } from "@/components/transactions/RecentTransactions";
 import { useUrlState } from "@/hooks/useUrlState";
-import { filtersQuery, profileQuery, summaryQuery } from "@/lib/queries";
+import { filtersQuery, goalsQuery, profileQuery, summaryQuery } from "@/lib/queries";
 import { PageFrame } from "./PageFrame";
 
 export function OverviewPage({ customerId }: { customerId: string }) {
@@ -14,6 +16,7 @@ export function OverviewPage({ customerId }: { customerId: string }) {
   const profile = useQuery(profileQuery(customerId));
   const filters = useQuery(filtersQuery(customerId));
   const summary = useQuery({ ...summaryQuery(customerId, period), placeholderData: keepPreviousData });
+  const goals = useQuery(goalsQuery(customerId));
   return (
     <PageFrame>
       <DashboardHeader profile={profile.data} error={profile.error} onRetry={profile.refetch} />
@@ -25,7 +28,24 @@ export function OverviewPage({ customerId }: { customerId: string }) {
         error={summary.error}
         onRetry={summary.refetch}
       />
-      <RecentTransactions customerId={customerId} />
+      <div className="grid gap-4 lg:grid-cols-[2fr_3fr]">
+        <GoalsPanel
+          data={goals.data}
+          categories={filters.data?.categories}
+          loading={goals.isFetching && !!goals.data}
+          error={goals.error}
+          onRetry={goals.refetch}
+          action={
+            <AddBudgetDialog
+              customerId={customerId}
+              categories={filters.data?.categories}
+              budgeted={goals.data?.goals.map((g) => g.category)}
+              size="sm"
+            />
+          }
+        />
+        <RecentTransactions customerId={customerId} categories={filters.data?.categories} paymentMethods={filters.data?.paymentMethods} />
+      </div>
     </PageFrame>
   );
 }

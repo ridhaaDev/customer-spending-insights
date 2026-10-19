@@ -6,9 +6,17 @@ import Link from "next/link";
 import { Card, CardHeader, EmptyState, ErrorState, Refreshing, Skeleton } from "@/components/ui";
 import { customerPath } from "@/lib/params";
 import { RECENT_LIMIT, recentTransactionsQuery } from "@/lib/queries";
+import type { CategoryFilter } from "@/lib/types";
+import { AddTransactionDialog } from "./AddTransactionDialog";
 import { TransactionTable } from "./TransactionTable";
 
-export function RecentTransactions({ customerId }: { customerId: string }) {
+interface Props {
+  customerId: string;
+  categories: CategoryFilter[] | undefined;
+  paymentMethods: string[] | undefined;
+}
+
+export function RecentTransactions({ customerId, categories, paymentMethods }: Props) {
   const { data, isFetching, error, refetch } = useQuery(recentTransactionsQuery(customerId));
   return (
     <Card>
@@ -16,12 +24,15 @@ export function RecentTransactions({ customerId }: { customerId: string }) {
         title="Recent transactions"
         subtitle={`Latest ${RECENT_LIMIT}`}
         action={
-          <Link
-            href={customerPath(customerId, "transactions")}
-            className="inline-flex items-center gap-1 text-sm font-medium text-accent-ink hover:underline"
-          >
-            View all <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href={customerPath(customerId, "transactions")}
+              className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-medium text-accent-ink hover:underline"
+            >
+              View all <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            <AddTransactionDialog customerId={customerId} categories={categories} paymentMethods={paymentMethods} size="sm" />
+          </div>
         }
       />
       {error && !data ? (

@@ -9,13 +9,15 @@ import type { CategoryFilter, TransactionCreate } from "@/lib/types";
 import { TransactionForm } from "./TransactionForm";
 
 interface Props {
+  // Trigger button size; "sm" suits a card header.
+  size?: "sm" | "md";
   customerId: string;
   categories: CategoryFilter[] | undefined;
   paymentMethods: string[] | undefined;
 }
 
 // "Add transaction" button plus the modal form; the mutation invalidates the customer's queries and closes on success.
-export function AddTransactionDialog({ customerId, categories, paymentMethods }: Props) {
+export function AddTransactionDialog({ customerId, categories, paymentMethods, size = "md" }: Props) {
   const [open, setOpen] = useState(false);
   const [defaultDate, setDefaultDate] = useState("");
   const queryClient = useQueryClient();
@@ -45,7 +47,7 @@ export function AddTransactionDialog({ customerId, categories, paymentMethods }:
       title="Add transaction"
       description="Recorded against this customer and reflected in every view immediately."
       trigger={
-        <Button variant="primary">
+        <Button variant="primary" size={size}>
           <Plus className="h-4 w-4" aria-hidden /> Add transaction
         </Button>
       }

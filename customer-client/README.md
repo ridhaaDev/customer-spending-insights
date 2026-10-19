@@ -34,7 +34,7 @@ npm run storybook    # http://localhost:6006, component catalogue with a theme t
 | Route | Shows |
 |-------|-------|
 | `/` | Redirects to the first customer |
-| `/customers/{id}` | Customer header, period selector, headline stats, recent transactions |
+| `/customers/{id}` | Customer header, period selector, headline stats, then monthly budgets beside recent transactions, each with its Add button |
 | `/customers/{id}/categories` | Spend by category for a preset period or a custom date range |
 | `/customers/{id}/trends` | Monthly totals for the last 6, 12 or 24 months, chart or table |
 | `/customers/{id}/budgets` | Amount left this month across all budgets, and month-to-date spend against each |

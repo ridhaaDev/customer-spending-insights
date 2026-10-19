@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 import { GoalsPanel } from "@/components/goals/GoalsPanel";
+import { Button } from "@/components/ui";
 import { categoryFilters, goals } from "@/test/fixtures";
 
 const meta = {
@@ -14,6 +15,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const AllStatuses: Story = {};
+
+export const WithAddButton: Story = {
+  args: {
+    action: (
+      <Button variant="primary" size="sm">
+        Add budget
+      </Button>
+    ),
+  },
+};
 
 export const WithoutCategoryMetadata: Story = { args: { categories: undefined } };
 
