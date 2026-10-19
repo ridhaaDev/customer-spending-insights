@@ -54,7 +54,7 @@ client and passes them to the client page through a `HydrationBoundary`, so the 
 contains the numbers. The same `queryOptions` (in `lib/queries.ts`) are used on the client, where
 TanStack Query owns caching: revisiting a page is instant, changing the period keeps the previous
 data on screen (dimmed) until the new data arrives, and identical requests are deduplicated. An
-unknown customer renders the `not-found` page; `loading.tsx` covers the first server render of a
+unknown customer calls `notFound()` from the customer layout, which the root `not-found` page renders with a 404; `loading.tsx` covers the first server render of a
 page and `experimental.staleTimes` lets recently visited pages render from the router cache.
 
 ## Themes
@@ -93,7 +93,7 @@ A second, moderate one: an open Radix `DropdownMenu` (profile and theme menus) i
 
 ```
 src/
-  app/              root layout; /customers/[customerId]/… routes (server components), loading, not-found, error
+  app/              root layout, not-found and error boundaries; /customers/[customerId]/… routes (server components) and loading
   context/          ThemeContext
   hooks/useUrlState view state in the search params (period, months, date range)
   lib/queries.ts    TanStack queryOptions shared by server prefetch and client
@@ -115,6 +115,8 @@ src/
     transactions/   TransactionsPanel, RecentTransactions, AddTransactionDialog (query-connected), TransactionForm, TransactionTable, TransactionFilters, Pagination
   stories/          Storybook catalogue by atomic level: atoms, molecules, organisms, templates
   test/fixtures.ts  sample payloads shared by stories and tests
+e2e/                Playwright specs: browser flows, API contracts, Storybook play functions, real-browser axe
+scripts/            start-standalone.mjs serves the production build the way the Docker image does
 ```
 
 Components live in feature folders; the Storybook catalogue under `src/stories/` is organised by
