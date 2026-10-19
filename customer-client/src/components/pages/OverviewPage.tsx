@@ -4,6 +4,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { PeriodSelector } from "@/components/dashboard/PeriodSelector";
 import { AddBudgetDialog } from "@/components/goals/AddBudgetDialog";
+import { BudgetSummaryCard } from "@/components/goals/BudgetSummaryCard";
 import { GoalsPanel } from "@/components/goals/GoalsPanel";
 import { SummaryCards } from "@/components/summary/SummaryCards";
 import { RecentTransactions } from "@/components/transactions/RecentTransactions";
@@ -29,7 +30,9 @@ export function OverviewPage({ customerId }: { customerId: string }) {
         onRetry={summary.refetch}
       />
       <div className="grid gap-4 lg:grid-cols-[2fr_3fr]">
-        <GoalsPanel
+        <div className="space-y-4">
+          <BudgetSummaryCard goals={goals.data?.goals} />
+          <GoalsPanel
           data={goals.data}
           categories={filters.data?.categories}
           loading={goals.isFetching && !!goals.data}
@@ -43,7 +46,8 @@ export function OverviewPage({ customerId }: { customerId: string }) {
               size="sm"
             />
           }
-        />
+          />
+        </div>
         <RecentTransactions customerId={customerId} categories={filters.data?.categories} paymentMethods={filters.data?.paymentMethods} />
       </div>
     </PageFrame>

@@ -1,7 +1,7 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Candy, Check, Monitor, Moon, Sun, type LucideProps } from "lucide-react";
+import { Candy, Check, ChevronDown, Monitor, Moon, Sun, type LucideProps } from "lucide-react";
 import type { ComponentType } from "react";
 import type { Theme } from "@/context/ThemeContext";
 
@@ -25,13 +25,16 @@ export function ThemeMenu({ value, onChange }: Props) {
         <button
           type="button"
           aria-label={`Theme: ${current.label}`}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-card text-ink hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-line bg-card px-2.5 text-sm text-ink hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <current.Icon className="h-4 w-4" aria-hidden />
+          <span className="hidden sm:block">{current.label}</span>
+          <ChevronDown className="hidden h-4 w-4 text-ink-muted sm:block" aria-hidden />
         </button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content align="end" sideOffset={8} aria-label="Theme" className="z-30 w-44 rounded-xl border border-line bg-card p-1.5 text-ink shadow-lg">
+          <DropdownMenu.Label className="px-2 pb-1 pt-1.5 text-xs font-medium text-ink-muted">Appearance</DropdownMenu.Label>
           <DropdownMenu.RadioGroup value={value} onValueChange={(v) => onChange(v as Theme)}>
             {THEME_OPTIONS.map(({ value: v, label, Icon }) => (
               <DropdownMenu.RadioItem

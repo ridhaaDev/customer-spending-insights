@@ -37,6 +37,7 @@
     --accent-soft: #86b6ef;
     --accent-soft-ink: #0b1a33;
     --accent-ink: #5598e7;
+    --status-critical: #f0706e; /* 5.9:1 on the dark card; the light red is 3.6:1 */
     --page-background: var(--surface);
   }
 }
@@ -54,6 +55,7 @@
   --accent-soft: #86b6ef;
   --accent-soft-ink: #0b1a33;
   --accent-ink: #5598e7;
+  --status-critical: #f0706e;
   --page-background: var(--surface);
 }
 

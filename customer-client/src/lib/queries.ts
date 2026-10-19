@@ -3,7 +3,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { api, type CategoriesQuery, type TransactionQuery } from "./api";
 import type { Period } from "./types";
 
-export const RECENT_LIMIT = 8;
+export const RECENT_LIMIT = 5;
 
 export const customersQuery = () =>
   queryOptions({ queryKey: ["customers"], queryFn: ({ signal }) => api.listCustomers(signal) });
