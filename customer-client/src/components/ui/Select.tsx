@@ -61,7 +61,8 @@ export function Select({
           <RadixSelect.Content
             position="popper"
             sideOffset={4}
-            className="z-40 min-w-[var(--radix-select-trigger-width)] rounded-lg border border-line bg-card p-1 text-ink shadow-lg"
+            // Above the modal layer (z-50) so a select inside a dialog opens over it.
+            className="z-[60] min-w-[var(--radix-select-trigger-width)] rounded-lg border border-line bg-card p-1 text-ink shadow-lg"
           >
             <RadixSelect.Viewport>
               {options.map((o) => (
